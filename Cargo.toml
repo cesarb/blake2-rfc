@@ -5,7 +5,7 @@ authors = ["Cesar Eduardo Barros <cesarb@cesarb.eti.br>"]
 description = "A pure Rust implementation of BLAKE2 based on the draft RFC."
 repository = "https://github.com/cesarb/blake2-rfc"
 readme = "README.md"
-keywords = ["blake2", "blake2b", "blake2s", "hash", "hashing", "crypto", "cryptography"]
+keywords = ["blake2", "blake2b", "blake2s", "hash", "crypto"]
 license = "MIT"
 
 [dependencies]
