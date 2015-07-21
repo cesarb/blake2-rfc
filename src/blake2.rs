@@ -43,6 +43,7 @@ macro_rules! blake2_impl {
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
         use std::cmp;
         use std::fmt::{self, Debug};
+        use std::io;
         use std::mem;
         use std::$word;
 
@@ -262,6 +263,23 @@ macro_rules! blake2_impl {
                 for i in 0..8 {
                     h[i] ^= v[i] ^ v[i + 8];
                 }
+            }
+        }
+
+        impl io::Write for $state {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                if self.t.checked_add(buf.len() as u64).is_none() {
+                    return Err(io::Error::new(io::ErrorKind::WriteZero,
+                                              "counter overflow"));
+                }
+
+                self.update(buf);
+                Ok(buf.len())
+            }
+
+            #[inline]
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
             }
         }
     }

@@ -66,6 +66,8 @@ blake2_selftest_impl!(Blake2s, blake2s, [
 
 #[cfg(test)]
 mod tests {
+    use std::io::prelude::*;
+
     extern crate rustc_serialize as serialize;
     use self::serialize::hex::FromHex;
 
@@ -95,6 +97,19 @@ mod tests {
         ctx.update(&data[224..]);
 
         assert_eq!(&ctx.finalize(), &blake2s(32, &[], &data));
+    }
+
+    #[test]
+    fn test_write() {
+        let data = selftest_seq(65536);
+
+        let mut ctx = Blake2s::new(32);
+        ctx.update(&data[..]);
+
+        let mut writer = Blake2s::new(32);
+        writer.write_all(&data[..]).unwrap();
+
+        assert_eq!(&writer.finalize(), &ctx.finalize());
     }
 
     #[test]
