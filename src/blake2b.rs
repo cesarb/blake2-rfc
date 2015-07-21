@@ -76,9 +76,9 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        assert_eq!(blake2b(64, &[], b""),
-            "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"
-            .from_hex().unwrap().as_ref());
+        assert_eq!(&blake2b(64, &[], b""),
+            &"786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"
+             .from_hex().unwrap()[..]);
     }
 
     #[test]
@@ -96,7 +96,7 @@ mod tests {
         ctx.update(&data[64..448]);
         ctx.update(&data[448..]);
 
-        assert_eq!(ctx.finalize(), blake2b(64, &[], &data));
+        assert_eq!(&ctx.finalize(), &blake2b(64, &[], &data));
     }
 
     #[test]
@@ -107,8 +107,8 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(state.finalize(),
-            "645572ca5756f9104329ed543735fc11904f0c18c4df8adf930f22d07f3094919a519ff34fd240ae3f5d5b4c8042225c109fb951036fdc99e7d2cd0c1d36b267"
-            .from_hex().unwrap().as_ref());
+        assert_eq!(&state.finalize(),
+            &"645572ca5756f9104329ed543735fc11904f0c18c4df8adf930f22d07f3094919a519ff34fd240ae3f5d5b4c8042225c109fb951036fdc99e7d2cd0c1d36b267"
+             .from_hex().unwrap()[..]);
     }
 }

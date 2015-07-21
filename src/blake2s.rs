@@ -74,9 +74,9 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        assert_eq!(blake2s(32, &[], b""),
-            "69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9"
-            .from_hex().unwrap().as_ref());
+        assert_eq!(&blake2s(32, &[], b""),
+            &"69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9"
+             .from_hex().unwrap()[..]);
     }
 
     #[test]
@@ -94,7 +94,7 @@ mod tests {
         ctx.update(&data[32..224]);
         ctx.update(&data[224..]);
 
-        assert_eq!(ctx.finalize(), blake2s(32, &[], &data));
+        assert_eq!(&ctx.finalize(), &blake2s(32, &[], &data));
     }
 
     #[test]
@@ -105,8 +105,8 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(state.finalize(),
-            "2a8e26830310da3ef7f7032b7b1af11b989aba44a3713a22f539f69bd2ce4a87"
-            .from_hex().unwrap().as_ref());
+        assert_eq!(&state.finalize(),
+            &"2a8e26830310da3ef7f7032b7b1af11b989aba44a3713a22f539f69bd2ce4a87"
+             .from_hex().unwrap()[..]);
     }
 }

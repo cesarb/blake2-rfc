@@ -57,8 +57,8 @@ macro_rules! blake2_impl {
         /// result can be extracted with the `as_bytes` method.
         #[derive(Copy, Eq)]
         pub struct $result {
-            h: [u8; $bytes],
             nn: usize,
+            h: [u8; $bytes],
         }
 
         impl $result {
@@ -97,9 +97,9 @@ macro_rules! blake2_impl {
             }
         }
 
-        impl<'a> PartialEq<&'a [u8]> for $result {
+        impl PartialEq<[u8]> for $result {
             #[inline]
-            fn eq(&self, other: &&[u8]) -> bool {
+            fn eq(&self, other: &[u8]) -> bool {
                 constant_time_eq(self.as_bytes(), other)
             }
         }
@@ -309,7 +309,7 @@ macro_rules! blake2_selftest_impl {
                 }
             }
 
-            assert_eq!(state.finalize(), BLAKE2_RES.as_ref());
+            assert_eq!(&state.finalize(), &BLAKE2_RES[..]);
         }
     }
 }
