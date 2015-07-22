@@ -45,7 +45,6 @@ macro_rules! blake2_impl {
         use std::fmt::{self, Debug};
         use std::io;
         use std::mem;
-        use std::$word;
 
         use $crate::as_mut_bytes::AsMutBytes;
         use $crate::bytes::{MutableByteVector, copy_memory};
@@ -231,7 +230,7 @@ macro_rules! blake2_impl {
                 let m = &self.m;
                 let h = &mut self.h;
 
-                let t0 = (self.t & ($word::MAX as u64)) as $word;
+                let t0 = self.t as $word;
                 let t1 = match $bytes {
                     64 => 0,
                     32 => (self.t >> 32) as $word,
