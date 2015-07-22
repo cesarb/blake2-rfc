@@ -106,7 +106,7 @@ macro_rules! blake2_impl {
         }
 
         /// State context.
-        #[derive(Clone)]
+        #[derive(Clone, Debug)]
         pub struct $state {
             m: [$word; 16],
             h: [$word; 8],
