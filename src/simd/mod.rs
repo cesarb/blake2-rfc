@@ -24,28 +24,19 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! A pure Rust implementation of BLAKE2 based on the draft RFC.
+#![allow(non_camel_case_types)]
 
-#![cfg_attr(feature = "bench", feature(test))]
-#![cfg_attr(feature = "simd", feature(core_simd, link_llvm_intrinsics, simd, simd_ffi))]
+#[cfg(not(feature = "simd"))]
+mod fallback;
+#[cfg(not(feature = "simd"))]
+pub use self::fallback::*;
 
-extern crate constant_time_eq;
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+mod sse2;
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+pub use self::sse2::*;
 
-#[cfg(all(feature = "bench", test))]
-extern crate test;
-
-mod as_mut_bytes;
-mod bytes;
-mod simd;
-
-#[macro_use]
-mod blake2;
-
-pub mod blake2b;
-pub mod blake2s;
-
-/// Runs the self-test for both BLAKE2b and BLAKE2s.
-pub fn selftest() {
-    blake2b::selftest();
-    blake2s::selftest();
-}
+#[cfg(all(feature = "simd", not(any(target_arch = "x86_64"))))]
+mod fallback;
+#[cfg(all(feature = "simd", not(any(target_arch = "x86_64"))))]
+pub use self::fallback::*;

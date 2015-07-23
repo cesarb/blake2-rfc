@@ -39,32 +39,43 @@ pub const SIGMA: [[usize; 16]; 10] = [
 ];
 
 macro_rules! blake2_impl {
-    ($state:ident, $result:ident, $func:ident, $word:ident,
+    ($state:ident, $result:ident, $func:ident, $word:ident, $vec:ident,
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
         use std::cmp;
         use std::fmt::{self, Debug};
         use std::io;
         use std::mem;
+        use std::slice;
 
         use $crate::as_mut_bytes::AsMutBytes;
         use $crate::bytes::{MutableByteVector, copy_memory};
         use $crate::constant_time_eq::constant_time_eq;
+        use $crate::simd::$vec;
 
         /// Container for a hash result.
         ///
         /// This container uses a constant-time comparison for equality.
         /// If a constant-time comparison is not necessary, the hash
         /// result can be extracted with the `as_bytes` method.
-        #[derive(Copy, Eq)]
+        #[derive(Copy)]
         pub struct $result {
+            h: [$vec; 2],
             nn: usize,
-            h: [u8; $bytes],
         }
 
         impl $result {
+            #[inline]
+            fn as_slice(&self) -> &[u8] {
+                unsafe {
+                    slice::from_raw_parts(
+                        self.h.as_ptr() as *const u8,
+                        mem::size_of_val(&self.h))
+                }
+            }
+
             /// Returns the contained hash result as a byte string.
             #[inline]
-            pub fn as_bytes(&self) -> &[u8] { &self.h[..self.nn] }
+            pub fn as_bytes(&self) -> &[u8] { &self.as_slice()[..self.nn] }
 
             /// Returns the length of the hash result.
             ///
@@ -90,6 +101,8 @@ macro_rules! blake2_impl {
             }
         }
 
+        impl Eq for $result { }
+
         impl PartialEq for $result {
             #[inline]
             fn eq(&self, other: &Self) -> bool {
@@ -108,7 +121,7 @@ macro_rules! blake2_impl {
         #[derive(Clone, Debug)]
         pub struct $state {
             m: [$word; 16],
-            h: [$word; 8],
+            h: [$vec; 2],
             t: u64,
             nn: usize,
         }
@@ -136,7 +149,8 @@ macro_rules! blake2_impl {
 
                 let mut state = $state {
                     m: [0; 16],
-                    h: h,
+                    h: [$vec::new(h[0], h[1], h[2], h[3]),
+                        $vec::new(h[4], h[5], h[6], h[7])],
                     t: 0,
                     nn: nn,
                 };
@@ -190,92 +204,48 @@ macro_rules! blake2_impl {
 
                 self.compress(!0);
 
-                for i in 0..self.h.len() {
-                    self.h[i] = self.h[i].to_le();
-                }
+                self.h[0] = self.h[0].to_le();
+                self.h[1] = self.h[1].to_le();
                 $result {
-                    h: unsafe { mem::transmute(self.h) },
+                    h: self.h,
                     nn: self.nn,
                 }
             }
 
             #[inline(always)]
-            fn quarter_round(v: &mut [$word; 16], rd: u32, rb: u32,
-                             m0: $word, m1: $word, m2: $word, m3: $word) {
-                v[0] = v[0].wrapping_add(v[4]).wrapping_add($word::from_le(m0));
-                v[1] = v[1].wrapping_add(v[5]).wrapping_add($word::from_le(m1));
-                v[2] = v[2].wrapping_add(v[6]).wrapping_add($word::from_le(m2));
-                v[3] = v[3].wrapping_add(v[7]).wrapping_add($word::from_le(m3));
-                v[12] = (v[12] ^ v[0]).rotate_right(rd);
-                v[13] = (v[13] ^ v[1]).rotate_right(rd);
-                v[14] = (v[14] ^ v[2]).rotate_right(rd);
-                v[15] = (v[15] ^ v[3]).rotate_right(rd);
-                v[8]  = v[8].wrapping_add(v[12]);
-                v[9]  = v[9].wrapping_add(v[13]);
-                v[10] = v[10].wrapping_add(v[14]);
-                v[11] = v[11].wrapping_add(v[15]);
-                v[4] = (v[4] ^ v[8]).rotate_right(rb);
-                v[5] = (v[5] ^ v[9]).rotate_right(rb);
-                v[6] = (v[6] ^ v[10]).rotate_right(rb);
-                v[7] = (v[7] ^ v[11]).rotate_right(rb);
+            fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
+                v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
+                v[3] = (v[3] ^ v[0]).rotate_right(rd);
+                v[2] = v[2].wrapping_add(v[3]);
+                v[1] = (v[1] ^ v[2]).rotate_right(rb);
             }
 
             #[inline(always)]
-            fn shuffle(v: &mut [$word; 16]) {
-                let v4 = v[4];
-                v[4] = v[5];
-                v[5] = v[6];
-                v[6] = v[7];
-                v[7] = v4;
-
-                let v8 = v[8];
-                let v9 = v[9];
-                v[8] = v[10];
-                v[9] = v[11];
-                v[10] = v8;
-                v[11] = v9;
-
-                let v15 = v[15];
-                v[15] = v[14];
-                v[14] = v[13];
-                v[13] = v[12];
-                v[12] = v15;
+            fn shuffle(v: &mut [$vec; 4]) {
+                v[1] = v[1].shuffle_left_1();
+                v[2] = v[2].shuffle_left_2();
+                v[3] = v[3].shuffle_left_3();
             }
 
             #[inline(always)]
-            fn unshuffle(v: &mut [$word; 16]) {
-                let v7 = v[7];
-                v[7] = v[6];
-                v[6] = v[5];
-                v[5] = v[4];
-                v[4] = v7;
-
-                let v8 = v[8];
-                let v9 = v[9];
-                v[8] = v[10];
-                v[9] = v[11];
-                v[10] = v8;
-                v[11] = v9;
-
-                let v12 = v[12];
-                v[12] = v[13];
-                v[13] = v[14];
-                v[14] = v[15];
-                v[15] = v12;
+            fn unshuffle(v: &mut [$vec; 4]) {
+                v[1] = v[1].shuffle_right_1();
+                v[2] = v[2].shuffle_right_2();
+                v[3] = v[3].shuffle_right_3();
             }
 
             #[inline(always)]
-            fn round(v: &mut [$word; 16], m: &[$word; 16], s: &[usize; 16]) {
-                $state::quarter_round(v, $R1, $R2,
-                                      m[s[ 0]], m[s[ 2]], m[s[ 4]], m[s[ 6]]);
-                $state::quarter_round(v, $R3, $R4,
-                                      m[s[ 1]], m[s[ 3]], m[s[ 5]], m[s[ 7]]);
+            fn round(v: &mut [$vec; 4], m: &[$word; 16], s: &[usize; 16]) {
+                $state::quarter_round(v, $R1, $R2, $vec::new(
+                                      m[s[ 0]], m[s[ 2]], m[s[ 4]], m[s[ 6]]));
+                $state::quarter_round(v, $R3, $R4, $vec::new(
+                                      m[s[ 1]], m[s[ 3]], m[s[ 5]], m[s[ 7]]));
 
                 $state::shuffle(v);
-                $state::quarter_round(v, $R1, $R2,
-                                      m[s[ 8]], m[s[10]], m[s[12]], m[s[14]]);
-                $state::quarter_round(v, $R3, $R4,
-                                      m[s[ 9]], m[s[11]], m[s[13]], m[s[15]]);
+                $state::quarter_round(v, $R1, $R2, $vec::new(
+                                      m[s[ 8]], m[s[10]], m[s[12]], m[s[14]]));
+                $state::quarter_round(v, $R3, $R4, $vec::new(
+                                      m[s[ 9]], m[s[11]], m[s[13]], m[s[15]]));
                 $state::unshuffle(v);
             }
 
@@ -293,10 +263,10 @@ macro_rules! blake2_impl {
                 };
 
                 let mut v = [
-                     h[0],       h[1],       h[2],       h[3],
-                     h[4],       h[5],       h[6],       h[7],
-                    IV[0],      IV[1],      IV[2],      IV[3],
-                    IV[4] ^ t0, IV[5] ^ t1, IV[6] ^ f0, IV[7],
+                    h[0],
+                    h[1],
+                    $vec::new(IV[0],      IV[1],      IV[2],      IV[3]),
+                    $vec::new(IV[4] ^ t0, IV[5] ^ t1, IV[6] ^ f0, IV[7]),
                 ];
 
                 $state::round(&mut v, m, &SIGMA[0]);
@@ -314,9 +284,8 @@ macro_rules! blake2_impl {
                     $state::round(&mut v, m, &SIGMA[1]);
                 }
 
-                for i in 0..8 {
-                    h[i] ^= v[i] ^ v[i + 8];
-                }
+                h[0] = h[0] ^ v[0] ^ v[2];
+                h[1] = h[1] ^ v[1] ^ v[3];
             }
         }
 
