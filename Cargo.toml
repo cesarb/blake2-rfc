@@ -8,6 +8,9 @@ readme = "README.md"
 keywords = ["blake2", "blake2b", "blake2s", "hash", "crypto"]
 license = "MIT"
 
+[features]
+bench = []
+
 [dependencies]
 constant_time_eq = "0.1.0"
 

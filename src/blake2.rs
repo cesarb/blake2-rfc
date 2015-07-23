@@ -330,3 +330,30 @@ macro_rules! blake2_selftest_impl {
         }
     }
 }
+
+macro_rules! blake2_bench_impl {
+    ($state:ident, $bytes:expr) => {
+        #[cfg(all(feature = "bench", test))]
+        mod bench {
+            use test::Bencher;
+
+            use blake2::selftest_seq;
+            use super::$state;
+
+            fn bench_blake2(bytes: u64, b: &mut Bencher) {
+                let data = selftest_seq(bytes as usize);
+
+                b.bytes = bytes;
+                b.iter(|| {
+                    let mut state = $state::new($bytes);
+                    state.update(&data[..]);
+                    state.finalize()
+                })
+            }
+
+            #[bench] fn bench_16(b: &mut Bencher) { bench_blake2(16, b) }
+            #[bench] fn bench_4k(b: &mut Bencher) { bench_blake2(4096, b) }
+            #[bench] fn bench_64k(b: &mut Bencher) { bench_blake2(65536, b) }
+        }
+    }
+}

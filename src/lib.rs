@@ -26,7 +26,12 @@
 
 //! A pure Rust implementation of BLAKE2 based on the draft RFC.
 
+#![cfg_attr(feature = "bench", feature(test))]
+
 extern crate constant_time_eq;
+
+#[cfg(all(feature = "bench", test))]
+extern crate test;
 
 mod as_mut_bytes;
 mod bytes;
