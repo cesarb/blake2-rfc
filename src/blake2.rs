@@ -200,28 +200,83 @@ macro_rules! blake2_impl {
             }
 
             #[inline(always)]
-            fn mix(v: &mut [$word; 16], a: usize, b: usize, c: usize, d: usize, x: $word, y: $word) {
-                v[a] = v[a].wrapping_add(v[b]).wrapping_add($word::from_le(x));
-                v[d] = (v[d] ^ v[a]).rotate_right($R1);
-                v[c] = v[c].wrapping_add(v[d]);
-                v[b] = (v[b] ^ v[c]).rotate_right($R2);
-                v[a] = v[a].wrapping_add(v[b]).wrapping_add($word::from_le(y));
-                v[d] = (v[d] ^ v[a]).rotate_right($R3);
-                v[c] = v[c].wrapping_add(v[d]);
-                v[b] = (v[b] ^ v[c]).rotate_right($R4);
+            fn quarter_round(v: &mut [$word; 16], rd: u32, rb: u32,
+                             m0: $word, m1: $word, m2: $word, m3: $word) {
+                v[0] = v[0].wrapping_add(v[4]).wrapping_add($word::from_le(m0));
+                v[1] = v[1].wrapping_add(v[5]).wrapping_add($word::from_le(m1));
+                v[2] = v[2].wrapping_add(v[6]).wrapping_add($word::from_le(m2));
+                v[3] = v[3].wrapping_add(v[7]).wrapping_add($word::from_le(m3));
+                v[12] = (v[12] ^ v[0]).rotate_right(rd);
+                v[13] = (v[13] ^ v[1]).rotate_right(rd);
+                v[14] = (v[14] ^ v[2]).rotate_right(rd);
+                v[15] = (v[15] ^ v[3]).rotate_right(rd);
+                v[8]  = v[8].wrapping_add(v[12]);
+                v[9]  = v[9].wrapping_add(v[13]);
+                v[10] = v[10].wrapping_add(v[14]);
+                v[11] = v[11].wrapping_add(v[15]);
+                v[4] = (v[4] ^ v[8]).rotate_right(rb);
+                v[5] = (v[5] ^ v[9]).rotate_right(rb);
+                v[6] = (v[6] ^ v[10]).rotate_right(rb);
+                v[7] = (v[7] ^ v[11]).rotate_right(rb);
+            }
+
+            #[inline(always)]
+            fn shuffle(v: &mut [$word; 16]) {
+                let v4 = v[4];
+                v[4] = v[5];
+                v[5] = v[6];
+                v[6] = v[7];
+                v[7] = v4;
+
+                let v8 = v[8];
+                let v9 = v[9];
+                v[8] = v[10];
+                v[9] = v[11];
+                v[10] = v8;
+                v[11] = v9;
+
+                let v15 = v[15];
+                v[15] = v[14];
+                v[14] = v[13];
+                v[13] = v[12];
+                v[12] = v15;
+            }
+
+            #[inline(always)]
+            fn unshuffle(v: &mut [$word; 16]) {
+                let v7 = v[7];
+                v[7] = v[6];
+                v[6] = v[5];
+                v[5] = v[4];
+                v[4] = v7;
+
+                let v8 = v[8];
+                let v9 = v[9];
+                v[8] = v[10];
+                v[9] = v[11];
+                v[10] = v8;
+                v[11] = v9;
+
+                let v12 = v[12];
+                v[12] = v[13];
+                v[13] = v[14];
+                v[14] = v[15];
+                v[15] = v12;
             }
 
             #[inline(always)]
             fn round(v: &mut [$word; 16], m: &[$word; 16], s: &[usize; 16]) {
-                $state::mix(v, 0, 4,  8, 12, m[s[ 0]], m[s[ 1]]);
-                $state::mix(v, 1, 5,  9, 13, m[s[ 2]], m[s[ 3]]);
-                $state::mix(v, 2, 6, 10, 14, m[s[ 4]], m[s[ 5]]);
-                $state::mix(v, 3, 7, 11, 15, m[s[ 6]], m[s[ 7]]);
+                $state::quarter_round(v, $R1, $R2,
+                                      m[s[ 0]], m[s[ 2]], m[s[ 4]], m[s[ 6]]);
+                $state::quarter_round(v, $R3, $R4,
+                                      m[s[ 1]], m[s[ 3]], m[s[ 5]], m[s[ 7]]);
 
-                $state::mix(v, 0, 5, 10, 15, m[s[ 8]], m[s[ 9]]);
-                $state::mix(v, 1, 6, 11, 12, m[s[10]], m[s[11]]);
-                $state::mix(v, 2, 7,  8, 13, m[s[12]], m[s[13]]);
-                $state::mix(v, 3, 4,  9, 14, m[s[14]], m[s[15]]);
+                $state::shuffle(v);
+                $state::quarter_round(v, $R1, $R2,
+                                      m[s[ 8]], m[s[10]], m[s[12]], m[s[14]]);
+                $state::quarter_round(v, $R3, $R4,
+                                      m[s[ 9]], m[s[11]], m[s[13]], m[s[15]]);
+                $state::unshuffle(v);
             }
 
             fn compress(&mut self, f0: $word) {
