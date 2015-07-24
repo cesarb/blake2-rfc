@@ -206,10 +206,8 @@ macro_rules! blake2_impl {
 
                 self.compress(!0);
 
-                self.h[0] = self.h[0].to_le();
-                self.h[1] = self.h[1].to_le();
                 $result {
-                    h: self.h,
+                    h: [self.h[0].to_le(), self.h[1].to_le()],
                     nn: self.nn,
                 }
             }
