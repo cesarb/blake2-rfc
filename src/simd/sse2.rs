@@ -25,44 +25,41 @@
 // DEALINGS IN THE SOFTWARE.
 
 use std::ops::BitXor;
-use std::simd::{u32x4, u64x2};
 
 #[derive(Clone, Copy, Debug)]
-pub struct vec4_u32(u32x4);
+#[repr(C)]
+#[simd]
+pub struct vec4_u32(u32, u32, u32, u32);
+
+#[derive(Clone, Copy, Debug)]
+#[repr(C)]
+#[simd]
+struct u64x2(u64, u64);
 
 #[derive(Clone, Copy, Debug)]
 pub struct vec4_u64(u64x2, u64x2);
 
 extern {
     #[link_name = "llvm.x86.sse2.pslli.d"]
-    fn pslli_d(a: u32x4, b: u32) -> u32x4;
+    fn pslli_d(a: vec4_u32, b: u32) -> vec4_u32;
 
     #[link_name = "llvm.x86.sse2.pslli.q"]
     fn pslli_q(a: u64x2, b: u32) -> u64x2;
 
     #[link_name = "llvm.x86.sse2.psrli.d"]
-    fn psrli_d(a: u32x4, b: u32) -> u32x4;
+    fn psrli_d(a: vec4_u32, b: u32) -> vec4_u32;
 
     #[link_name = "llvm.x86.sse2.psrli.q"]
     fn psrli_q(a: u64x2, b: u32) -> u64x2;
 
     #[link_name = "llvm.x86.sse2.pshuf.d"]
-    fn pshuf_d(a: u32x4, b: u8) -> u32x4;
-}
-
-impl BitXor for vec4_u32 {
-    type Output = Self;
-
-    #[inline(always)]
-    fn bitxor(self, rhs: Self) -> Self::Output {
-        vec4_u32(self.0 ^ rhs.0)
-    }
+    fn pshuf_d(a: vec4_u32, b: u8) -> vec4_u32;
 }
 
 impl vec4_u32 {
     #[inline(always)]
     pub fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
-        vec4_u32(u32x4(a, b, c, d))
+        vec4_u32(a, b, c, d)
     }
 
     #[inline(always)]
@@ -79,34 +76,34 @@ impl vec4_u32 {
 
     #[inline(always)]
     pub fn wrapping_add(self, rhs: Self) -> Self {
-        vec4_u32(self.0 + rhs.0)
+        self + rhs
     }
 
     #[inline(always)]
     pub fn rotate_right(self, n: u32) -> Self {
         unsafe {
-            vec4_u32(psrli_d(self.0, n) ^ pslli_d(self.0, 32 - n))
+            psrli_d(self, n) ^ pslli_d(self, 32 - n)
         }
     }
 
     #[inline(always)]
     pub fn shuffle_left_1(self) -> Self {
         unsafe {
-            vec4_u32(pshuf_d(self.0, 0b00_11_10_01))
+            pshuf_d(self, 0b00_11_10_01)
         }
     }
 
     #[inline(always)]
     pub fn shuffle_left_2(self) -> Self {
         unsafe {
-            vec4_u32(pshuf_d(self.0, 0b01_00_11_10))
+            pshuf_d(self, 0b01_00_11_10)
         }
     }
 
     #[inline(always)]
     pub fn shuffle_left_3(self) -> Self {
         unsafe {
-            vec4_u32(pshuf_d(self.0, 0b10_01_00_11))
+            pshuf_d(self, 0b10_01_00_11)
         }
     }
 

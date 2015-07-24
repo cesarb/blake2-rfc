@@ -27,7 +27,7 @@
 //! A pure Rust implementation of BLAKE2 based on the draft RFC.
 
 #![cfg_attr(feature = "bench", feature(test))]
-#![cfg_attr(feature = "simd", feature(core_simd, link_llvm_intrinsics, simd, simd_ffi))]
+#![cfg_attr(feature = "simd", feature(link_llvm_intrinsics, simd, simd_ffi))]
 
 extern crate constant_time_eq;
 

@@ -10,7 +10,7 @@ license = "MIT"
 
 [features]
 bench = []
-#simd = []
+simd = []
 
 [dependencies]
 constant_time_eq = "0.1.0"

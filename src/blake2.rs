@@ -265,8 +265,9 @@ macro_rules! blake2_impl {
                 let mut v = [
                     h[0],
                     h[1],
-                    $vec::new(IV[0],      IV[1],      IV[2],      IV[3]),
-                    $vec::new(IV[4] ^ t0, IV[5] ^ t1, IV[6] ^ f0, IV[7]),
+                    $vec::new(IV[0], IV[1], IV[2], IV[3]),
+                    $vec::new(IV[4], IV[5], IV[6], IV[7])
+                    ^ $vec::new( t0,    t1,    f0,    0)
                 ];
 
                 $state::round(&mut v, m, &SIGMA[0]);
@@ -284,8 +285,8 @@ macro_rules! blake2_impl {
                     $state::round(&mut v, m, &SIGMA[1]);
                 }
 
-                h[0] = h[0] ^ v[0] ^ v[2];
-                h[1] = h[1] ^ v[1] ^ v[3];
+                h[0] = h[0] ^ (v[0] ^ v[2]);
+                h[1] = h[1] ^ (v[1] ^ v[3]);
             }
         }
 
