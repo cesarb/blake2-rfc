@@ -128,6 +128,11 @@ macro_rules! blake2_impl {
 
         const IV: [$word; 8] = $IV;
 
+        #[inline(always)]
+        fn iv0() -> $vec { $vec::new(IV[0], IV[1], IV[2], IV[3]) }
+        #[inline(always)]
+        fn iv1() -> $vec { $vec::new(IV[4], IV[5], IV[6], IV[7]) }
+
         /// Convenience function for all-in-one computation.
         pub fn $func(nn: usize, k: &[u8], data: &[u8]) -> $result {
             let mut state = $state::with_key(nn, k);
@@ -144,13 +149,10 @@ macro_rules! blake2_impl {
                 let kk = k.len();
                 assert!(nn >= 1 && nn <= $bytes && kk <= $bytes);
 
-                let mut h = IV;
-                h[0] ^= 0x01010000 ^ ((kk as $word) << 8) ^ (nn as $word);
-
+                let p0 = 0x01010000 ^ ((kk as $word) << 8) ^ (nn as $word);
                 let mut state = $state {
                     m: [0; 16],
-                    h: [$vec::new(h[0], h[1], h[2], h[3]),
-                        $vec::new(h[4], h[5], h[6], h[7])],
+                    h: [iv0() ^ $vec::new(p0, 0, 0, 0), iv1()],
                     t: 0,
                     nn: nn,
                 };
@@ -265,9 +267,8 @@ macro_rules! blake2_impl {
                 let mut v = [
                     h[0],
                     h[1],
-                    $vec::new(IV[0], IV[1], IV[2], IV[3]),
-                    $vec::new(IV[4], IV[5], IV[6], IV[7])
-                    ^ $vec::new( t0,    t1,    f0,    0)
+                    iv0(),
+                    iv1() ^ $vec::new(t0, t1, f0, 0),
                 ];
 
                 $state::round(&mut v, m, &SIGMA[0]);
