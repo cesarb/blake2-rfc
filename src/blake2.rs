@@ -164,6 +164,17 @@ macro_rules! blake2_impl {
                 state
             }
 
+            #[doc(hidden)]
+            pub fn with_parameter_block(p: &[$word; 8]) -> Self {
+                $state {
+                    m: [0; 16],
+                    h: [iv0() ^ $vec::new(p[0], p[1], p[2], p[3]),
+                        iv1() ^ $vec::new(p[4], p[5], p[6], p[7])],
+                    t: 0,
+                    nn: p[0] as u8 as usize,
+                }
+            }
+
             /// Updates the hashing context with more data.
             pub fn update(&mut self, data: &[u8]) {
                 let mut rest = data;
@@ -180,7 +191,7 @@ macro_rules! blake2_impl {
                 }
 
                 while rest.len() >= $bytes * 2 {
-                    self.compress(0);
+                    self.compress(0, 0);
 
                     let part = &rest[..($bytes * 2)];
                     rest = &rest[part.len()..];
@@ -190,7 +201,7 @@ macro_rules! blake2_impl {
                 }
 
                 if rest.len() > 0 {
-                    self.compress(0);
+                    self.compress(0, 0);
 
                     copy_memory(rest, self.m.as_mut_bytes());
                     self.t = self.t.checked_add(rest.len() as u64).unwrap();
@@ -198,13 +209,22 @@ macro_rules! blake2_impl {
             }
 
             /// Consumes the hashing context and returns the resulting hash.
-            pub fn finalize(mut self) -> $result {
+            pub fn finalize(self) -> $result {
+                self.finalize_with_flag(0)
+            }
+
+            #[doc(hidden)]
+            pub fn finalize_last_node(self) -> $result {
+                self.finalize_with_flag(!0)
+            }
+
+            fn finalize_with_flag(mut self, f1: $word) -> $result {
                 let off = (self.t % ($bytes * 2)) as usize;
                 if off != 0 {
                     self.m.as_mut_bytes()[off..].set_memory(0);
                 }
 
-                self.compress(!0);
+                self.compress(!0, f1);
 
                 $result {
                     h: [self.h[0].to_le(), self.h[1].to_le()],
@@ -249,7 +269,7 @@ macro_rules! blake2_impl {
                 $state::unshuffle(v);
             }
 
-            fn compress(&mut self, f0: $word) {
+            fn compress(&mut self, f0: $word, f1: $word) {
                 use $crate::blake2::SIGMA;
 
                 let m = &self.m;
@@ -266,7 +286,7 @@ macro_rules! blake2_impl {
                     h[0],
                     h[1],
                     iv0(),
-                    iv1() ^ $vec::new(t0, t1, f0, 0),
+                    iv1() ^ $vec::new(t0, t1, f0, f1),
                 ];
 
                 $state::round(&mut v, m, &SIGMA[0]);

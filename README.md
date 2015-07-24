@@ -27,10 +27,6 @@ not necessary, the hash result can easily be extracted from this struct.
 
 ## Limitations
 
-This crate is limited to the features described in the draft RFC: only
-the "digest length" and "key length" parameters can be used. Other
-advanced BLAKE2 features have not been implemented.
-
 A single BLAKE2b hash is limited to 16 exabytes, lower than its
 theorical limit (but identical to the BLAKE2s theorical limit), due to
 the use of a `u64` as the byte counter. This limit can be increased, if
@@ -42,3 +38,16 @@ work memory (which includes the state context, the stack, and processor
 registers). To do so correctly without a heavy performance penalty would
 require help from the compiler. It's better to not attempt to do so than
 to present a false assurance.
+
+## Non-RFC uses
+
+This crate is limited to the features described in the draft RFC: only
+the "digest length" and "key length" parameters can be used.
+
+If you need to use other advanced BLAKE2 features, this crate has an
+undocumented function to create a hashing context with an arbitrary
+parameter block, and an undocumented function to finalize the last node
+in tree hashing mode. You are responsible for creating a valid parameter
+block, for hashing the padded key block if using keyed hashing, and for
+calling the correct finalization function. The parameter block is not
+validated by these functions.
