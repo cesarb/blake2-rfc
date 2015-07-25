@@ -26,17 +26,14 @@
 
 #![allow(non_camel_case_types)]
 
-#[cfg(not(feature = "simd"))]
-mod fallback;
-#[cfg(not(feature = "simd"))]
-pub use self::fallback::*;
-
-#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 mod sse2;
-#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+#[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 pub use self::sse2::*;
 
-#[cfg(all(feature = "simd", not(any(target_arch = "x86_64"))))]
+#[cfg(not(all(feature = "simd", any(target_arch = "x86",
+                                    target_arch = "x86_64"))))]
 mod fallback;
-#[cfg(all(feature = "simd", not(any(target_arch = "x86_64"))))]
+#[cfg(not(all(feature = "simd", any(target_arch = "x86",
+                                    target_arch = "x86_64"))))]
 pub use self::fallback::*;
