@@ -31,9 +31,18 @@ mod sse2;
 #[cfg(all(feature = "simd", any(target_arch = "x86", target_arch = "x86_64")))]
 pub use self::sse2::*;
 
+#[cfg(all(feature = "simd", target_arch = "arm", target_endian = "little"))]
+mod neon;
+#[cfg(all(feature = "simd", target_arch = "arm", target_endian = "little"))]
+pub use self::neon::*;
+
 #[cfg(not(all(feature = "simd", any(target_arch = "x86",
-                                    target_arch = "x86_64"))))]
+                                    target_arch = "x86_64",
+                                    all(target_arch = "arm",
+                                        target_endian = "little")))))]
 mod fallback;
 #[cfg(not(all(feature = "simd", any(target_arch = "x86",
-                                    target_arch = "x86_64"))))]
+                                    target_arch = "x86_64",
+                                    all(target_arch = "arm",
+                                        target_endian = "little")))))]
 pub use self::fallback::*;
