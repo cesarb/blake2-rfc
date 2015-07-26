@@ -24,6 +24,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+use std::mem::transmute;
 use std::ops::BitXor;
 
 #[derive(Clone, Copy, Debug)]
@@ -38,6 +39,11 @@ struct u64x2(u64, u64);
 
 #[derive(Clone, Copy, Debug)]
 pub struct vec4_u64(u64x2, u64x2);
+
+#[derive(Clone, Copy)]
+#[repr(C)]
+#[simd]
+struct u16x8(u16, u16, u16, u16, u16, u16, u16, u16);
 
 extern {
     #[link_name = "llvm.x86.sse2.pslli.d"]
@@ -54,6 +60,12 @@ extern {
 
     #[link_name = "llvm.x86.sse2.pshuf.d"]
     fn pshuf_d(a: vec4_u32, b: u8) -> vec4_u32;
+
+    #[link_name = "llvm.x86.sse2.pshufl.w"]
+    fn pshufl_w(a: u16x8, b: u8) -> u16x8;
+
+    #[link_name = "llvm.x86.sse2.pshufh.w"]
+    fn pshufh_w(a: u16x8, b: u8) -> u16x8;
 }
 
 impl vec4_u32 {
@@ -80,9 +92,25 @@ impl vec4_u32 {
     }
 
     #[inline(always)]
-    pub fn rotate_right(self, n: u32) -> Self {
+    fn rotate_right_16(self) -> Self {
+        unsafe {
+            let tmp = pshufl_w(transmute(self), 0b10_11_00_01);
+            transmute(pshufh_w(tmp,             0b10_11_00_01))
+        }
+    }
+
+    #[inline(always)]
+    fn rotate_right_any(self, n: u32) -> Self {
         unsafe {
             psrli_d(self, n) ^ pslli_d(self, 32 - n)
+        }
+    }
+
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        match n {
+            16 => self.rotate_right_16(),
+            _ => self.rotate_right_any(n),
         }
     }
 
@@ -151,10 +179,34 @@ impl vec4_u64 {
     }
 
     #[inline(always)]
-    pub fn rotate_right(self, n: u32) -> Self {
+    fn rotate_right_32(v: u64x2) -> u64x2 {
+        unsafe { transmute(pshuf_d(transmute(v), 0b10_11_00_01)) }
+    }
+
+    #[inline(always)]
+    fn rotate_right_16(v: u64x2) -> u64x2 {
+        unsafe {
+            let tmp = pshufl_w(transmute(v), 0b00_11_10_01);
+            transmute(pshufh_w(tmp,          0b00_11_10_01))
+        }
+    }
+
+    #[inline(always)]
+    fn rotate_right_any(self, n: u32) -> Self {
         unsafe {
             vec4_u64(psrli_q(self.0, n) ^ pslli_q(self.0, 64 - n),
                      psrli_q(self.1, n) ^ pslli_q(self.1, 64 - n))
+        }
+    }
+
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        match n {
+            32 => vec4_u64(vec4_u64::rotate_right_32(self.0),
+                           vec4_u64::rotate_right_32(self.1)),
+            16 => vec4_u64(vec4_u64::rotate_right_16(self.0),
+                           vec4_u64::rotate_right_16(self.1)),
+            _ => self.rotate_right_any(n),
         }
     }
 
