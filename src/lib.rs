@@ -28,6 +28,7 @@
 
 #![cfg_attr(feature = "bench", feature(test))]
 #![cfg_attr(feature = "simd", feature(link_llvm_intrinsics, simd, simd_ffi))]
+#![cfg_attr(feature = "simd_asm", feature(asm))]
 
 extern crate constant_time_eq;
 

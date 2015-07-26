@@ -74,6 +74,30 @@ fn vshrq_n_u64(a: u64x2, n: u32) ->  u64x2 {
     unsafe { vshiftu_v2i64(a, i64x2(n_, n_)) }
 }
 
+#[cfg(feature = "simd_asm")]
+#[inline(always)]
+fn vrev32q_u16(a: vec4_u32) -> vec4_u32 {
+    unsafe {
+        let result: vec4_u32;
+        asm!("vrev32.16 $0, $1"
+           : "=w" (result)
+           : "w" (a));
+        result
+    }
+}
+
+#[cfg(feature = "simd_asm")]
+#[inline(always)]
+fn vrev64q_u32(a: u64x2) -> u64x2 {
+    unsafe {
+        let result: u64x2;
+        asm!("vrev64.32 $0, $1"
+           : "=w" (result)
+           : "w" (a));
+        result
+    }
+}
+
 impl vec4_u32 {
     #[inline(always)]
     pub fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
@@ -89,8 +113,23 @@ impl vec4_u32 {
     }
 
     #[inline(always)]
-    pub fn rotate_right(self, n: u32) -> Self {
+    fn rotate_right_any(self, n: u32) -> Self {
         vshrq_n_u32(self, n) ^ vshlq_n_u32(self, 32 - n)
+    }
+
+    #[cfg(feature = "simd_asm")]
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        match n {
+            16 => vrev32q_u16(self),
+            _ => self.rotate_right_any(n),
+        }
+    }
+
+    #[cfg(not(feature = "simd_asm"))]
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        self.rotate_right_any(n)
     }
 
     #[inline(always)]
@@ -143,9 +182,24 @@ impl vec4_u64 {
     }
 
     #[inline(always)]
-    pub fn rotate_right(self, n: u32) -> Self {
+    fn rotate_right_any(self, n: u32) -> Self {
         vec4_u64(vshrq_n_u64(self.0, n) ^ vshlq_n_u64(self.0, 64 - n),
                  vshrq_n_u64(self.1, n) ^ vshlq_n_u64(self.1, 64 - n))
+    }
+
+    #[cfg(feature = "simd_asm")]
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        match n {
+            32 => vec4_u64(vrev64q_u32(self.0), vrev64q_u32(self.1)),
+            _ => self.rotate_right_any(n),
+        }
+    }
+
+    #[cfg(not(feature = "simd_asm"))]
+    #[inline(always)]
+    pub fn rotate_right(self, n: u32) -> Self {
+        self.rotate_right_any(n)
     }
 
     #[inline(always)]

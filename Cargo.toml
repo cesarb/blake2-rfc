@@ -11,6 +11,7 @@ license = "MIT"
 [features]
 bench = []
 simd = []
+simd_asm = ["simd"]
 
 [dependencies]
 constant_time_eq = "0.1.0"
