@@ -98,6 +98,18 @@ fn vrev64q_u32(a: u64x2) -> u64x2 {
     }
 }
 
+#[cfg(feature = "simd_asm")]
+#[inline(always)]
+fn vext_u64_u8(a: u64x2, b: u8) -> u64x2 {
+    unsafe {
+        let result: u64x2;
+        asm!("vext.8 ${0:e}, ${1:e}, ${1:e}, $2\nvext.8 ${0:f}, ${1:f}, ${1:f}, $2"
+           : "=w" (result)
+           : "w" (a), "n" (b));
+        result
+    }
+}
+
 impl vec4_u32 {
     #[inline(always)]
     pub fn new(a: u32, b: u32, c: u32, d: u32) -> Self {
@@ -192,6 +204,8 @@ impl vec4_u64 {
     pub fn rotate_right(self, n: u32) -> Self {
         match n {
             32 => vec4_u64(vrev64q_u32(self.0), vrev64q_u32(self.1)),
+            24 => vec4_u64(vext_u64_u8(self.0, 3), vext_u64_u8(self.1, 3)),
+            16 => vec4_u64(vext_u64_u8(self.0, 2), vext_u64_u8(self.1, 2)),
             _ => self.rotate_right_any(n),
         }
     }
