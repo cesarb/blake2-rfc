@@ -10,11 +10,15 @@ license = "MIT"
 
 [features]
 bench = []
-simd = []
+simd = ["simdty"]
 simd_asm = ["simd"]
 
 [dependencies]
 constant_time_eq = "0.1.0"
+
+[dependencies.simdty]
+version = "0.0.3"
+optional = true
 
 [dev-dependencies]
 rustc-serialize = "0.3.15"
