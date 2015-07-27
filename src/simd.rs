@@ -218,16 +218,56 @@ fn u64x4_rotate_right_16(vec: u64x4) -> u64x4 {
     }
 }
 
+#[cfg(feature = "simd_asm")]
+#[cfg(target_arch = "arm")]
+use simdty::u64x2;
+
+#[cfg(feature = "simd_asm")]
+#[cfg(target_arch = "arm")]
+#[inline(always)]
+fn vext_u64_u8(a: u64x2, b: u8) -> u64x2 {
+    unsafe {
+        let result: u64x2;
+        asm!("vext.8 ${0:e}, ${1:e}, ${1:e}, $2\nvext.8 ${0:f}, ${1:f}, ${1:f}, $2"
+           : "=w" (result)
+           : "w" (a), "n" (b));
+        result
+    }
+}
+
+#[cfg(feature = "simd_asm")]
+#[cfg(target_arch = "arm")]
+#[inline(always)]
+fn u64x4_rotate_right_u8(vec: u64x4, n: u8) -> u64x4 {
+    let tmp0 = vext_u64_u8(u64x2(vec.0, vec.1), n);
+    let tmp1 = vext_u64_u8(u64x2(vec.2, vec.3), n);
+    u64x4(tmp0.0, tmp0.1, tmp1.0, tmp1.1)
+}
+
 impl Vector for u64x4 {
     impl_vector_common!(u64x4, u64, 64);
 
     #[cfg(feature = "simd")]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(all(target_arch = "arm", not(feature = "simd_asm")),
+              target_arch = "aarch64"))]
     #[inline(always)]
     fn rotate_right(self, n: u32) -> Self
     {
         match n {
             32 => u64x4_rotate_right_32(self),
+            _ => self.rotate_right_any(n),
+        }
+    }
+
+    #[cfg(feature = "simd_asm")]
+    #[cfg(target_arch = "arm")]
+    #[inline(always)]
+    fn rotate_right(self, n: u32) -> Self
+    {
+        match n {
+            32 => u64x4_rotate_right_32(self),
+            24 => u64x4_rotate_right_u8(self, 3),
+            16 => u64x4_rotate_right_u8(self, 2),
             _ => self.rotate_right_any(n),
         }
     }
