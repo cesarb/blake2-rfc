@@ -51,3 +51,26 @@ in tree hashing mode. You are responsible for creating a valid parameter
 block, for hashing the padded key block if using keyed hashing, and for
 calling the correct finalization function. The parameter block is not
 validated by these functions.
+
+## SIMD optimization
+
+This crate has experimental support for explicit SIMD optimizations. It
+requires nightly Rust due to the use of unstable features.
+
+The following cargo features enable the explicit SIMD optimization:
+
+* `simd` enables the explicit use of SIMD vectors instead of a plain
+  struct
+* `simd_opt` additionally enables the use of SIMD shuffles to implement
+  some of the rotates
+* `simd_asm` additionally enables the use of inline asm to implement
+  some of the SIMD shuffles
+
+While one might expect that each of these is faster than the previous
+one, and that they are all faster than not enabling explicit SIMD
+vectors, that's not always the case. It can vary depending on target
+architecture and compiler options. If you need the extra speed from
+these optimizations, benchmark each one (the `bench` feature enables
+`cargo bench` in this crate, so you can use for instance `cargo bench
+--features="bench simd_asm"`). They have currently been tuned for SSE2
+(x86 and x86-64) and NEON (arm).

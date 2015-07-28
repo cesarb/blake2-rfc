@@ -24,7 +24,7 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#[cfg(feature = "simd")]
+#[cfg(feature = "simd_opt")]
 use std::mem::transmute;
 
 #[cfg(feature = "simd")]
@@ -158,7 +158,7 @@ macro_rules! impl_vector_common {
     }
 }
 
-#[cfg(feature = "simd")]
+#[cfg(feature = "simd_opt")]
 #[cfg(any(target_arch = "arm", target_arch = "aarch64",
           target_arch = "x86", target_arch = "x86_64"))]
 #[inline(always)]
@@ -176,7 +176,7 @@ fn u32x4_rotate_right_16(vec: u32x4) -> u32x4 {
 impl Vector for u32x4 {
     impl_vector_common!(u32x4, u32, 32);
 
-    #[cfg(feature = "simd")]
+    #[cfg(feature = "simd_opt")]
     #[cfg(any(target_arch = "arm", target_arch = "aarch64",
               target_arch = "x86", target_arch = "x86_64"))]
     #[inline(always)]
@@ -189,7 +189,7 @@ impl Vector for u32x4 {
     }
 }
 
-#[cfg(feature = "simd")]
+#[cfg(feature = "simd_opt")]
 #[cfg(any(target_arch = "arm", target_arch = "aarch64",
           target_arch = "x86", target_arch = "x86_64"))]
 #[inline(always)]
@@ -204,7 +204,7 @@ fn u64x4_rotate_right_32(vec: u64x4) -> u64x4 {
     }
 }
 
-#[cfg(feature = "simd")]
+#[cfg(feature = "simd_opt")]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[inline(always)]
 fn u64x4_rotate_right_16(vec: u64x4) -> u64x4 {
@@ -247,7 +247,7 @@ fn u64x4_rotate_right_u8(vec: u64x4, n: u8) -> u64x4 {
 impl Vector for u64x4 {
     impl_vector_common!(u64x4, u64, 64);
 
-    #[cfg(feature = "simd")]
+    #[cfg(feature = "simd_opt")]
     #[cfg(any(all(target_arch = "arm", not(feature = "simd_asm")),
               target_arch = "aarch64"))]
     #[inline(always)]
@@ -272,7 +272,7 @@ impl Vector for u64x4 {
         }
     }
 
-    #[cfg(feature = "simd")]
+    #[cfg(feature = "simd_opt")]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[inline(always)]
     fn rotate_right(self, n: u32) -> Self
