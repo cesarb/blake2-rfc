@@ -47,7 +47,7 @@ macro_rules! blake2_impl {
         use std::mem;
         use std::slice;
 
-        use $crate::as_mut_bytes::AsMutBytes;
+        use $crate::as_bytes::AsBytes;
         use $crate::bytes::{MutableByteVector, copy_memory};
         use $crate::constant_time_eq::constant_time_eq;
         use $crate::simd::{Vector, $vec};

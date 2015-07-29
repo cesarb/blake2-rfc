@@ -36,7 +36,7 @@ extern crate constant_time_eq;
 
 #[cfg(feature = "simd")] extern crate simdty;
 
-mod as_mut_bytes;
+mod as_bytes;
 mod bytes;
 mod simd;
 

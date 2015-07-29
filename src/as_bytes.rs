@@ -27,24 +27,27 @@
 use std::mem;
 use std::slice;
 
-pub trait AsMutBytes {
+pub trait AsBytes {
+    fn as_bytes(&self) -> &[u8];
     fn as_mut_bytes(&mut self) -> &mut [u8];
 }
 
-macro_rules! as_mut_bytes_impl {
-    ($t:ty) => {
-        impl AsMutBytes for $t {
-            #[inline]
-            fn as_mut_bytes(&mut self) -> &mut [u8] {
-                unsafe {
-                    slice::from_raw_parts_mut(
-                        self.as_mut_ptr() as *mut u8,
-                        mem::size_of::<Self>())
-                }
-            }
+impl<T> AsBytes for [T] {
+    #[inline]
+    fn as_bytes(&self) -> &[u8] {
+        unsafe {
+            slice::from_raw_parts(
+                self.as_ptr() as *const u8,
+                self.len() * mem::size_of::<T>())
+        }
+    }
+
+    #[inline]
+    fn as_mut_bytes(&mut self) -> &mut [u8] {
+        unsafe {
+            slice::from_raw_parts_mut(
+                self.as_mut_ptr() as *mut u8,
+                self.len() * mem::size_of::<T>())
         }
     }
 }
-
-as_mut_bytes_impl!([u32; 16]);
-as_mut_bytes_impl!([u64; 16]);
