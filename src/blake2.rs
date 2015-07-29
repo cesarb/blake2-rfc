@@ -44,8 +44,6 @@ macro_rules! blake2_impl {
         use std::cmp;
         use std::fmt::{self, Debug};
         use std::io;
-        use std::mem;
-        use std::slice;
 
         use $crate::as_bytes::AsBytes;
         use $crate::bytes::{MutableByteVector, copy_memory};
@@ -64,18 +62,9 @@ macro_rules! blake2_impl {
         }
 
         impl $result {
-            #[inline]
-            fn as_slice(&self) -> &[u8] {
-                unsafe {
-                    slice::from_raw_parts(
-                        self.h.as_ptr() as *const u8,
-                        mem::size_of_val(&self.h))
-                }
-            }
-
             /// Returns the contained hash result as a byte string.
             #[inline]
-            pub fn as_bytes(&self) -> &[u8] { &self.as_slice()[..self.nn] }
+            pub fn as_bytes(&self) -> &[u8] { &self.h.as_bytes()[..self.nn] }
 
             /// Returns the length of the hash result.
             ///
