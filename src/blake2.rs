@@ -48,7 +48,7 @@ macro_rules! blake2_impl {
         use $crate::as_bytes::AsBytes;
         use $crate::bytes::{MutableByteVector, copy_memory};
         use $crate::constant_time_eq::constant_time_eq;
-        use $crate::simd::{Vector, $vec};
+        use $crate::simd::{Vector4, $vec};
 
         /// Container for a hash result.
         ///
@@ -245,16 +245,16 @@ macro_rules! blake2_impl {
 
             #[inline(always)]
             fn round(v: &mut [$vec; 4], m: &[$word; 16], s: &[usize; 16]) {
-                $state::quarter_round(v, $R1, $R2, $vec(
-                                      m[s[ 0]], m[s[ 2]], m[s[ 4]], m[s[ 6]]));
-                $state::quarter_round(v, $R3, $R4, $vec(
-                                      m[s[ 1]], m[s[ 3]], m[s[ 5]], m[s[ 7]]));
+                $state::quarter_round(v, $R1, $R2, $vec::gather(m,
+                                      s[ 0], s[ 2], s[ 4], s[ 6]));
+                $state::quarter_round(v, $R3, $R4, $vec::gather(m,
+                                      s[ 1], s[ 3], s[ 5], s[ 7]));
 
                 $state::shuffle(v);
-                $state::quarter_round(v, $R1, $R2, $vec(
-                                      m[s[ 8]], m[s[10]], m[s[12]], m[s[14]]));
-                $state::quarter_round(v, $R3, $R4, $vec(
-                                      m[s[ 9]], m[s[11]], m[s[13]], m[s[15]]));
+                $state::quarter_round(v, $R1, $R2, $vec::gather(m,
+                                      s[ 8], s[10], s[12], s[14]));
+                $state::quarter_round(v, $R3, $R4, $vec::gather(m,
+                                      s[ 9], s[11], s[13], s[15]));
                 $state::unshuffle(v);
             }
 

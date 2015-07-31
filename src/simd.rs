@@ -63,7 +63,9 @@ macro_rules! impl_bitxor {
 impl_bitxor!(u32x4);
 impl_bitxor!(u64x4);
 
-pub trait Vector: Copy {
+pub trait Vector4<T>: Copy {
+    fn gather(src: &[T], i0: usize, i1: usize, i2: usize, i3: usize) -> Self;
+
     fn from_le(self) -> Self;
     fn to_le(self) -> Self;
 
@@ -82,8 +84,14 @@ pub trait Vector: Copy {
     #[inline(always)] fn shuffle_right_3(self) -> Self { self.shuffle_left_1() }
 }
 
-macro_rules! impl_vector_common {
+macro_rules! impl_vector4_common {
     ($vec:ident, $word:ident, $bits:expr) => {
+        #[inline(always)]
+        fn gather(src: &[$word], i0: usize, i1: usize,
+                                 i2: usize, i3: usize) -> Self {
+            $vec(src[i0], src[i1], src[i2], src[i3])
+        }
+
         #[cfg(target_endian = "little")]
         #[inline(always)]
         fn from_le(self) -> Self { self }
@@ -173,8 +181,8 @@ fn u32x4_rotate_right_16(vec: u32x4) -> u32x4 {
     }
 }
 
-impl Vector for u32x4 {
-    impl_vector_common!(u32x4, u32, 32);
+impl Vector4<u32> for u32x4 {
+    impl_vector4_common!(u32x4, u32, 32);
 
     #[cfg(feature = "simd_opt")]
     #[cfg(any(target_arch = "arm", target_arch = "aarch64",
@@ -244,8 +252,9 @@ fn u64x4_rotate_right_u8(vec: u64x4, n: u8) -> u64x4 {
     u64x4(tmp0.0, tmp0.1, tmp1.0, tmp1.1)
 }
 
-impl Vector for u64x4 {
-    impl_vector_common!(u64x4, u64, 64);
+impl Vector4<u64> for u64x4 {
+    impl_vector4_common!(u64x4, u64, 64);
+
 
     #[cfg(feature = "simd_opt")]
     #[cfg(any(all(target_arch = "arm", not(feature = "simd_asm")),
