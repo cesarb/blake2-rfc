@@ -30,11 +30,10 @@
 #![cfg_attr(feature = "simd", feature(link_llvm_intrinsics, simd, simd_ffi))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 
-extern crate constant_time_eq;
-
 #[cfg(all(feature = "bench", test))] extern crate test;
-
 #[cfg(feature = "simd")] extern crate simdty;
+
+extern crate constant_time_eq;
 
 mod as_bytes;
 mod bytes;
