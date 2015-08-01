@@ -31,13 +31,13 @@ use std::mem::transmute;
 pub use simdty::{u32x4, u64x4};
 
 #[cfg(not(feature = "simd"))]
-#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug)]
+#[repr(C)]
 pub struct u32x4(pub u32, pub u32, pub u32, pub u32);
 
 #[cfg(not(feature = "simd"))]
-#[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Debug)]
+#[repr(C)]
 pub struct u64x4(pub u64, pub u64, pub u64, pub u64);
 
 #[cfg(not(feature = "simd"))]
