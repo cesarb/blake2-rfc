@@ -42,7 +42,6 @@ macro_rules! blake2_impl {
     ($state:ident, $result:ident, $func:ident, $word:ident, $vec:ident,
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
         use std::cmp;
-        use std::fmt::{self, Debug};
         use std::io;
 
         use $crate::as_bytes::AsBytes;
@@ -55,7 +54,7 @@ macro_rules! blake2_impl {
         /// This container uses a constant-time comparison for equality.
         /// If a constant-time comparison is not necessary, the hash
         /// result can be extracted with the `as_bytes` method.
-        #[derive(Copy)]
+        #[derive(Clone, Copy, Debug)]
         pub struct $result {
             h: [$vec; 2],
             nn: usize,
@@ -77,17 +76,6 @@ macro_rules! blake2_impl {
         impl AsRef<[u8]> for $result {
             #[inline]
             fn as_ref(&self) -> &[u8] { self.as_bytes() }
-        }
-
-        impl Clone for $result {
-            #[inline]
-            fn clone(&self) -> Self { *self }
-        }
-
-        impl Debug for $result {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                Debug::fmt(self.as_bytes(), f)
-            }
         }
 
         impl Eq for $result { }
