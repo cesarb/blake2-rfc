@@ -24,32 +24,29 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! A pure Rust implementation of BLAKE2 based on the draft RFC.
+#![allow(dead_code)]
 
-#![cfg_attr(all(feature = "bench", test), feature(test))]
-#![cfg_attr(feature = "simd", feature(platform_intrinsics, simd_basics))]
-#![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
-#![cfg_attr(feature = "simd_asm", feature(asm))]
+use simdty;
 
-#[cfg(all(feature = "bench", test))] extern crate test;
+extern "platform-intrinsic" {
+    pub fn simd_add<T>(x: T, y: T) -> T;
+    pub fn simd_shl<T>(x: T, y: T) -> T;
+    pub fn simd_shr<T>(x: T, y: T) -> T;
+    pub fn simd_xor<T>(x: T, y: T) -> T;
 
-extern crate constant_time_eq;
-
-mod as_bytes;
-mod bytes;
-
-mod simdty;
-#[cfg(feature = "simd")] mod simdint;
-mod simd;
-
-#[macro_use]
-mod blake2;
-
-pub mod blake2b;
-pub mod blake2s;
-
-/// Runs the self-test for both BLAKE2b and BLAKE2s.
-pub fn selftest() {
-    blake2b::selftest();
-    blake2s::selftest();
+    pub fn simd_shuffle2<T, Elem>(v: T, w: T, i0: u32, i1: u32)
+        -> simdty::Simd2<Elem>;
+    pub fn simd_shuffle4<T, Elem>(v: T, w: T,
+                                  i0: u32, i1: u32, i2: u32, i3: u32)
+        -> simdty::Simd4<Elem>;
+    pub fn simd_shuffle8<T, Elem>(v: T, w: T,
+                                  i0: u32, i1: u32, i2: u32, i3: u32,
+                                  i4: u32, i5: u32, i6: u32, i7: u32)
+        -> simdty::Simd8<Elem>;
+    pub fn simd_shuffle16<T, Elem>(v: T, w: T,
+                                   i0: u32,  i1: u32,  i2: u32,  i3: u32,
+                                   i4: u32,  i5: u32,  i6: u32,  i7: u32,
+                                   i8: u32,  i9: u32, i10: u32, i11: u32,
+                                  i12: u32, i13: u32, i14: u32, i15: u32)
+        -> simdty::Simd16<Elem>;
 }

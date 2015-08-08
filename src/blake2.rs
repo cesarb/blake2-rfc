@@ -106,9 +106,9 @@ macro_rules! blake2_impl {
         const IV: [$word; 8] = $IV;
 
         #[inline(always)]
-        fn iv0() -> $vec { $vec(IV[0], IV[1], IV[2], IV[3]) }
+        fn iv0() -> $vec { $vec::new(IV[0], IV[1], IV[2], IV[3]) }
         #[inline(always)]
-        fn iv1() -> $vec { $vec(IV[4], IV[5], IV[6], IV[7]) }
+        fn iv1() -> $vec { $vec::new(IV[4], IV[5], IV[6], IV[7]) }
 
         /// Convenience function for all-in-one computation.
         pub fn $func(nn: usize, k: &[u8], data: &[u8]) -> $result {
@@ -129,7 +129,7 @@ macro_rules! blake2_impl {
                 let p0 = 0x01010000 ^ ((kk as $word) << 8) ^ (nn as $word);
                 let mut state = $state {
                     m: [0; 16],
-                    h: [iv0() ^ $vec(p0, 0, 0, 0), iv1()],
+                    h: [iv0() ^ $vec::new(p0, 0, 0, 0), iv1()],
                     t: 0,
                     nn: nn,
                 };
@@ -145,8 +145,8 @@ macro_rules! blake2_impl {
             pub fn with_parameter_block(p: &[$word; 8]) -> Self {
                 $state {
                     m: [0; 16],
-                    h: [iv0() ^ $vec(p[0], p[1], p[2], p[3]),
-                        iv1() ^ $vec(p[4], p[5], p[6], p[7])],
+                    h: [iv0() ^ $vec::new(p[0], p[1], p[2], p[3]),
+                        iv1() ^ $vec::new(p[4], p[5], p[6], p[7])],
                     t: 0,
                     nn: p[0] as u8 as usize,
                 }
@@ -263,7 +263,7 @@ macro_rules! blake2_impl {
                     h[0],
                     h[1],
                     iv0(),
-                    iv1() ^ $vec(t0, t1, f0, f1),
+                    iv1() ^ $vec::new(t0, t1, f0, f1),
                 ];
 
                 $state::round(&mut v, m, &SIGMA[0]);

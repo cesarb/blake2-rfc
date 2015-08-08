@@ -24,11 +24,13 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#![allow(dead_code)]
+#![allow(non_camel_case_types)]
+
 #[cfg(feature = "simd")]
-macro_rules! decl_vec {
+macro_rules! decl_simd {
     ($($decl:item)*) => {
         $(
-            #[allow(non_camel_case_types)]
             #[derive(Clone, Copy, Debug)]
             #[repr(simd)]
             $decl
@@ -37,7 +39,7 @@ macro_rules! decl_vec {
 }
 
 #[cfg(not(feature = "simd"))]
-macro_rules! decl_vec {
+macro_rules! decl_simd {
     ($($decl:item)*) => {
         $(
             #[derive(Clone, Copy, Debug)]
@@ -47,30 +49,56 @@ macro_rules! decl_vec {
     }
 }
 
-decl_vec!{
-    pub struct u32x4(pub u32, pub u32, pub u32, pub u32);
-    pub struct u64x4(pub u64, pub u64, pub u64, pub u64);
+decl_simd! {
+    pub struct Simd2<T>(pub T, pub T);
+    pub struct Simd4<T>(pub T, pub T, pub T, pub T);
+    pub struct Simd8<T>(pub T, pub T, pub T, pub T,
+                        pub T, pub T, pub T, pub T);
+    pub struct Simd16<T>(pub T, pub T, pub T, pub T,
+                         pub T, pub T, pub T, pub T,
+                         pub T, pub T, pub T, pub T,
+                         pub T, pub T, pub T, pub T);
 }
 
-#[cfg(feature = "simd_opt")]
-decl_vec!{
-    pub struct u16x8(pub u16, pub u16, pub u16, pub u16,
-                     pub u16, pub u16, pub u16, pub u16);
-    pub struct u32x8(pub u32, pub u32, pub u32, pub u32,
-                     pub u32, pub u32, pub u32, pub u32);
+pub type u64x2 = Simd2<u64>;
+
+pub type u32x4 = Simd4<u32>;
+pub type u64x4 = Simd4<u64>;
+
+pub type u16x8 = Simd8<u16>;
+pub type u32x8 = Simd8<u32>;
+
+pub type u16x16 = Simd16<u16>;
+
+impl<T> Simd2<T> {
+    #[inline(always)]
+    pub fn new(e0: T, e1: T) -> Simd2<T> {
+        Simd2(e0, e1)
+    }
 }
 
-#[cfg(feature = "simd_opt")]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-decl_vec!{
-    pub struct u16x16(pub u16, pub u16, pub u16, pub u16,
-                      pub u16, pub u16, pub u16, pub u16,
-                      pub u16, pub u16, pub u16, pub u16,
-                      pub u16, pub u16, pub u16, pub u16);
+impl<T> Simd4<T> {
+    #[inline(always)]
+    pub fn new(e0: T, e1: T, e2: T, e3: T) -> Simd4<T> {
+        Simd4(e0, e1, e2, e3)
+    }
 }
 
-#[cfg(feature = "simd_asm")]
-#[cfg(target_arch = "arm")]
-decl_vec!{
-    pub struct u64x2(pub u64, pub u64);
+impl<T> Simd8<T> {
+    #[inline(always)]
+    pub fn new(e0: T, e1: T, e2: T, e3: T,
+               e4: T, e5: T, e6: T, e7: T) -> Simd8<T> {
+        Simd8(e0, e1, e2, e3, e4, e5, e6, e7)
+    }
+}
+
+impl<T> Simd16<T> {
+    #[inline(always)]
+    pub fn new(e0:  T, e1:  T, e2:  T, e3:  T,
+               e4:  T, e5:  T, e6:  T, e7:  T,
+               e8:  T, e9:  T, e10: T, e11: T,
+               e12: T, e13: T, e14: T, e15: T) -> Simd16<T> {
+        Simd16(e0, e1,  e2,  e3,  e4,  e5,  e6,  e7,
+               e8, e9, e10, e11, e12, e13, e14, e15)
+    }
 }
