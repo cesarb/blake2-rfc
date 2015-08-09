@@ -39,7 +39,10 @@ mod as_bytes;
 mod bytes;
 
 mod simdty;
-#[cfg(feature = "simd")] mod simdint;
+#[allow(dead_code)] mod simdint {
+    #[cfg(feature = "simd")]
+    include!("simdint.rs");
+}
 mod simd;
 
 #[macro_use]
