@@ -191,7 +191,7 @@ macro_rules! impl_vector4_common {
         #[cfg(feature = "simd")]
         #[inline(always)]
         fn shuffle_left_1(self) -> Self {
-            unsafe { simdint::simd_shuffle4(self, self, 1, 2, 3, 0) }
+            unsafe { simdint::simd_shuffle4(self, self, [1, 2, 3, 0]) }
         }
 
         #[cfg(not(feature = "simd"))]
@@ -203,7 +203,7 @@ macro_rules! impl_vector4_common {
         #[cfg(feature = "simd")]
         #[inline(always)]
         fn shuffle_left_2(self) -> Self {
-            unsafe { simdint::simd_shuffle4(self, self, 2, 3, 0, 1) }
+            unsafe { simdint::simd_shuffle4(self, self, [2, 3, 0, 1]) }
         }
 
         #[cfg(not(feature = "simd"))]
@@ -215,7 +215,7 @@ macro_rules! impl_vector4_common {
         #[cfg(feature = "simd")]
         #[inline(always)]
         fn shuffle_left_3(self) -> Self {
-            unsafe { simdint::simd_shuffle4(self, self, 3, 0, 1, 2)  }
+            unsafe { simdint::simd_shuffle4(self, self, [3, 0, 1, 2])  }
         }
 
         #[cfg(not(feature = "simd"))]
@@ -237,10 +237,10 @@ fn u32x4_rotate_right_16(vec: u32x4) -> u32x4 {
     unsafe {
         let tmp: u16x8 = transmute(vec);
         let tmp: u16x8 = simdint::simd_shuffle8(tmp, tmp,
-                                                1, 0,
-                                                3, 2,
-                                                5, 4,
-                                                7, 6);
+                                                [1, 0,
+                                                 3, 2,
+                                                 5, 4,
+                                                 7, 6]);
         transmute(tmp)
     }
 }
@@ -272,10 +272,10 @@ fn u64x4_rotate_right_32(vec: u64x4) -> u64x4 {
     unsafe {
         let tmp: u32x8 = transmute(vec);
         let tmp: u32x8 = simdint::simd_shuffle8(tmp, tmp,
-                                                1, 0,
-                                                3, 2,
-                                                5, 4,
-                                                7, 6);
+                                                [1, 0,
+                                                 3, 2,
+                                                 5, 4,
+                                                 7, 6]);
         transmute(tmp)
     }
 }
@@ -290,10 +290,10 @@ fn u64x4_rotate_right_16(vec: u64x4) -> u64x4 {
     unsafe {
         let tmp: u16x16 = transmute(vec);
         let tmp: u16x16 = simdint::simd_shuffle16(tmp, tmp,
-                                                   1,  2,  3,  0,
-                                                   5,  6,  7,  4,
-                                                   9, 10, 11,  8,
-                                                  13, 14, 15, 12);
+                                                  [ 1,  2,  3,  0,
+                                                    5,  6,  7,  4,
+                                                    9, 10, 11,  8,
+                                                   13, 14, 15, 12]);
         transmute(tmp)
     }
 }

@@ -27,7 +27,7 @@
 //! A pure Rust implementation of BLAKE2 based on the draft RFC.
 
 #![cfg_attr(all(feature = "bench", test), feature(test))]
-#![cfg_attr(feature = "simd", feature(platform_intrinsics, simd_basics))]
+#![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 

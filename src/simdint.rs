@@ -24,27 +24,14 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-use simdty;
-
 extern "platform-intrinsic" {
     pub fn simd_add<T>(x: T, y: T) -> T;
     pub fn simd_shl<T>(x: T, y: T) -> T;
     pub fn simd_shr<T>(x: T, y: T) -> T;
     pub fn simd_xor<T>(x: T, y: T) -> T;
 
-    pub fn simd_shuffle2<T, Elem>(v: T, w: T, i0: u32, i1: u32)
-        -> simdty::Simd2<Elem>;
-    pub fn simd_shuffle4<T, Elem>(v: T, w: T,
-                                  i0: u32, i1: u32, i2: u32, i3: u32)
-        -> simdty::Simd4<Elem>;
-    pub fn simd_shuffle8<T, Elem>(v: T, w: T,
-                                  i0: u32, i1: u32, i2: u32, i3: u32,
-                                  i4: u32, i5: u32, i6: u32, i7: u32)
-        -> simdty::Simd8<Elem>;
-    pub fn simd_shuffle16<T, Elem>(v: T, w: T,
-                                   i0: u32,  i1: u32,  i2: u32,  i3: u32,
-                                   i4: u32,  i5: u32,  i6: u32,  i7: u32,
-                                   i8: u32,  i9: u32, i10: u32, i11: u32,
-                                  i12: u32, i13: u32, i14: u32, i15: u32)
-        -> simdty::Simd16<Elem>;
+    pub fn simd_shuffle2<T, U>(v: T, w: T, idx: [u32; 2]) -> U;
+    pub fn simd_shuffle4<T, U>(v: T, w: T, idx: [u32; 4]) -> U;
+    pub fn simd_shuffle8<T, U>(v: T, w: T, idx: [u32; 8]) -> U;
+    pub fn simd_shuffle16<T, U>(v: T, w: T, idx: [u32; 16]) -> U;
 }
