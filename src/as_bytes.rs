@@ -32,7 +32,7 @@ pub trait AsBytes {
     fn as_mut_bytes(&mut self) -> &mut [u8];
 }
 
-impl<T> AsBytes for [T] {
+impl<T: Copy> AsBytes for [T] {
     #[inline]
     fn as_bytes(&self) -> &[u8] {
         unsafe {
