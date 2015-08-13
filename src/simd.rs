@@ -320,9 +320,9 @@ fn vext_u64_u8(a: u64x2, b: u8) -> u64x2 {
 #[inline(always)]
 fn u64x4_rotate_right_u8(vec: u64x4, n: u8) -> u64x4 {
     unsafe {
-        let tmp0 = vext_u64_u8(simdint::simd_shuffle2(vec, vec, 0, 1), n);
-        let tmp1 = vext_u64_u8(simdint::simd_shuffle2(vec, vec, 2, 3), n);
-        simdint::simd_shuffle4(tmp0, tmp1, 0, 1, 2, 3)
+        let tmp0 = vext_u64_u8(simdint::simd_shuffle2(vec, vec, [0, 1]), n);
+        let tmp1 = vext_u64_u8(simdint::simd_shuffle2(vec, vec, [2, 3]), n);
+        simdint::simd_shuffle4(tmp0, tmp1, [0, 1, 2, 3])
     }
 }
 
