@@ -212,9 +212,9 @@ macro_rules! blake2_impl {
             #[inline(always)]
             fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
                 v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
-                v[3] = (v[3] ^ v[0]).rotate_right(rd);
+                v[3] = (v[3] ^ v[0]).rotate_right_const(rd);
                 v[2] = v[2].wrapping_add(v[3]);
-                v[1] = (v[1] ^ v[2]).rotate_right(rb);
+                v[1] = (v[1] ^ v[2]).rotate_right_const(rb);
             }
 
             #[inline(always)]

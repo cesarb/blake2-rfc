@@ -24,37 +24,25 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-//! A pure Rust implementation of BLAKE2 based on the draft RFC.
+#[cfg(feature = "simd")] pub mod u32x4;
+#[cfg(feature = "simd")] pub mod u64x4;
 
-#![cfg_attr(all(feature = "bench", test), feature(test))]
-#![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
-#![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
-#![cfg_attr(feature = "simd_asm", feature(asm))]
+#[cfg(not(feature = "simd"))]
+macro_rules! simd_opt {
+    ($vec:ident) => {
+        pub mod $vec {
+            use simdty::$vec;
 
-#[cfg(all(feature = "bench", test))] extern crate test;
-
-extern crate constant_time_eq;
-
-mod as_bytes;
-mod bytes;
-
-mod simdty;
-#[allow(dead_code)] mod simdint {
-    #[cfg(feature = "simd")]
-    include!("simdint.rs");
+            #[inline(always)]
+            pub fn rotate_right_const(vec: $vec, n: u32) -> $vec {
+                $vec::new(vec.0.rotate_right(n),
+                          vec.1.rotate_right(n),
+                          vec.2.rotate_right(n),
+                          vec.3.rotate_right(n))
+            }
+        }
+    }
 }
-mod simdop;
-mod simd_opt;
-mod simd;
 
-#[macro_use]
-mod blake2;
-
-pub mod blake2b;
-pub mod blake2s;
-
-/// Runs the self-test for both BLAKE2b and BLAKE2s.
-pub fn selftest() {
-    blake2b::selftest();
-    blake2s::selftest();
-}
+#[cfg(not(feature = "simd"))] simd_opt!(u32x4);
+#[cfg(not(feature = "simd"))] simd_opt!(u64x4);
