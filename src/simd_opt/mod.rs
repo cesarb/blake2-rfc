@@ -24,6 +24,21 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#[cfg(feature = "simd")]
+macro_rules! transmute_shuffle {
+    ($tmp:ident, $shuffle:ident, $vec:expr, $idx:expr) => {
+        unsafe {
+            use simdty::$tmp;
+            use simdint::$shuffle;
+            use std::mem::transmute;
+
+            let tmp: $tmp = transmute($vec);
+            let tmp: $tmp = $shuffle(tmp, tmp, $idx);
+            transmute(tmp)
+        }
+    }
+}
+
 #[cfg(feature = "simd")] pub mod u32x4;
 #[cfg(feature = "simd")] pub mod u64x4;
 

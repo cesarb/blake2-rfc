@@ -26,14 +26,6 @@
 
 use simdty::u32x4;
 
-#[inline(always)]
-fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
-    let r = n as u32;
-    let l = 32 - r;
-
-    (vec >> u32x4::new(r, r, r, r)) ^ (vec << u32x4::new(l, l, l, l))
-}
-
 #[cfg(feature = "simd_opt")]
 #[inline(always)]
 pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
@@ -50,50 +42,47 @@ pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
     rotate_right_any(vec, n)
 }
 
+#[inline(always)]
+fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
+    let r = n as u32;
+    let l = 32 - r;
+
+    (vec >> u32x4::new(r, r, r, r)) ^ (vec << u32x4::new(l, l, l, l))
+}
+
 #[cfg(feature = "simd_opt")]
-#[cfg(any(target_feature = "sse2", target_feature = "neon"))]
 #[inline(always)]
 fn rotate_right_16(vec: u32x4) -> u32x4 {
-    use simdint::simd_shuffle8;
-    use simdty::u16x8;
-    use std::mem::transmute;
-
-    unsafe {
-        let tmp: u16x8 = transmute(vec);
-        let tmp: u16x8 = simd_shuffle8(tmp, tmp,
-                                       [1, 0,
-                                        3, 2,
-                                        5, 4,
-                                        7, 6]);
-        transmute(tmp)
+    if cfg!(target_feature = "ssse3") {
+        // pshufb (SSSE3) / vpshufb (AVX2)
+        transmute_shuffle!(u8x16, simd_shuffle16, vec,
+                           [ 2,  3,  0,  1,
+                             6,  7,  4,  5,
+                            10, 11,  8,  9,
+                            14, 15, 12, 13])
+    } else if cfg!(any(target_feature = "sse2", target_feature = "neon")) {
+        // pshuflw+pshufhw (SSE2) / vrev (NEON)
+        transmute_shuffle!(u16x8, simd_shuffle8, vec,
+                           [1, 0,
+                            3, 2,
+                            5, 4,
+                            7, 6])
+    } else {
+        rotate_right_any(vec, 16)
     }
 }
 
 #[cfg(feature = "simd_opt")]
-#[cfg(not(any(target_feature = "sse2", target_feature = "neon")))]
-#[inline(always)]
-fn rotate_right_16(vec: u32x4) -> u32x4 { rotate_right_any(vec, 16) }
-
-#[cfg(feature = "simd_opt")]
-#[cfg(target_feature = "ssse3")]
 #[inline(always)]
 fn rotate_right_8(vec: u32x4) -> u32x4 {
-    use simdint::simd_shuffle16;
-    use simdty::u8x16;
-    use std::mem::transmute;
-
-    unsafe {
-        let tmp: u8x16 = transmute(vec);
-        let tmp: u8x16 = simd_shuffle16(tmp, tmp,
-                                        [ 1,  2,  3,  0,
-                                          5,  6,  7,  4,
-                                          9, 10, 11,  8,
-                                         13, 14, 15, 12]);
-        transmute(tmp)
+    if cfg!(target_feature = "ssse3") {
+        // pshufb (SSSE3) / vpshufb (AVX2)
+        transmute_shuffle!(u8x16, simd_shuffle16, vec,
+                           [ 1,  2,  3,  0,
+                             5,  6,  7,  4,
+                             9, 10, 11,  8,
+                            13, 14, 15, 12])
+    } else {
+        rotate_right_any(vec, 8)
     }
 }
-
-#[cfg(feature = "simd_opt")]
-#[cfg(not(target_feature = "ssse3"))]
-#[inline(always)]
-fn rotate_right_8(vec: u32x4) -> u32x4 { rotate_right_any(vec, 8) }
