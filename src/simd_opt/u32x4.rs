@@ -39,6 +39,7 @@ fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
 pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
     match n {
         16 => rotate_right_16(vec),
+         8 => rotate_right_8(vec),
         _ => rotate_right_any(vec, n),
     }
 }
@@ -72,3 +73,27 @@ fn rotate_right_16(vec: u32x4) -> u32x4 {
 #[cfg(not(any(target_feature = "sse2", target_feature = "neon")))]
 #[inline(always)]
 fn rotate_right_16(vec: u32x4) -> u32x4 { rotate_right_any(vec, 16) }
+
+#[cfg(feature = "simd_opt")]
+#[cfg(target_feature = "ssse3")]
+#[inline(always)]
+fn rotate_right_8(vec: u32x4) -> u32x4 {
+    use simdint::simd_shuffle16;
+    use simdty::u8x16;
+    use std::mem::transmute;
+
+    unsafe {
+        let tmp: u8x16 = transmute(vec);
+        let tmp: u8x16 = simd_shuffle16(tmp, tmp,
+                                        [ 1,  2,  3,  0,
+                                          5,  6,  7,  4,
+                                          9, 10, 11,  8,
+                                         13, 14, 15, 12]);
+        transmute(tmp)
+    }
+}
+
+#[cfg(feature = "simd_opt")]
+#[cfg(not(target_feature = "ssse3"))]
+#[inline(always)]
+fn rotate_right_8(vec: u32x4) -> u32x4 { rotate_right_any(vec, 8) }

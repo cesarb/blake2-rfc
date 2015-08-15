@@ -75,6 +75,25 @@ fn rotate_right_32(vec: u64x4) -> u64x4 {
 #[inline(always)]
 fn rotate_right_32(vec: u64x4) -> u64x4 { rotate_right_any(vec, 32) }
 
+#[cfg(feature = "simd_opt")]
+#[cfg(target_feature = "ssse3")]
+#[inline(always)]
+fn rotate_right_24(vec: u64x4) -> u64x4 {
+    use simdint::simd_shuffle32;
+    use simdty::u8x32;
+    use std::mem::transmute;
+
+    unsafe {
+        let tmp: u8x32 = transmute(vec);
+        let tmp: u8x32 = simd_shuffle32(tmp, tmp,
+                                        [ 3,  4,  5,  6,  7,  0,  1,  2,
+                                         11, 12, 13, 14, 15,  8,  9, 10,
+                                         19, 20, 21, 22, 23, 16, 17, 18,
+                                         27, 28, 29, 30, 31, 24, 25, 26]);
+        transmute(tmp)
+    }
+}
+
 #[cfg(feature = "simd_asm")]
 #[cfg(target_feature = "neon")]
 #[cfg(target_arch = "arm")]
@@ -84,9 +103,10 @@ fn rotate_right_24(vec: u64x4) -> u64x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[cfg(not(all(feature = "simd_asm",
-              target_feature = "neon",
-              target_arch = "arm")))]
+#[cfg(not(any(target_feature = "ssse3",
+              all(feature = "simd_asm",
+                  target_feature = "neon",
+                  target_arch = "arm"))))]
 #[inline(always)]
 fn rotate_right_24(vec: u64x4) -> u64x4 { rotate_right_any(vec, 24) }
 
