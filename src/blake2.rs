@@ -335,8 +335,8 @@ macro_rules! blake2_selftest_impl {
 
             let mut state = $state::new(32);
 
-            for &outlen in B2_MD_LEN.iter() {
-                for &inlen in B2_IN_LEN.iter() {
+            for &outlen in &B2_MD_LEN {
+                for &inlen in &B2_IN_LEN {
                     let data = selftest_seq(inlen);
                     let md = $func(outlen, &[], &data);
                     state.update(md.as_bytes());
