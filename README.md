@@ -1,9 +1,8 @@
 # blake2-rfc
 
-This is a pure Rust implementation of BLAKE2 based on the [draft RFC]
-for the BLAKE2 hash functions.
+This is a pure Rust implementation of BLAKE2 based on [RFC 7693].
 
-[draft RFC]: https://tools.ietf.org/html/draft-saarinen-blake2
+[RFC 7693]: https://tools.ietf.org/html/rfc7693
 
 ## Design
 
