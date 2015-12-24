@@ -60,6 +60,7 @@ macro_rules! blake2_impl {
             nn: usize,
         }
 
+        #[allow(len_without_is_empty)]
         impl $result {
             /// Returns the contained hash result as a byte string.
             #[inline]
@@ -143,12 +144,16 @@ macro_rules! blake2_impl {
 
             #[doc(hidden)]
             pub fn with_parameter_block(p: &[$word; 8]) -> Self {
+                let nn = p[0] as u8 as usize;
+                let kk = (p[0] >> 8) as u8 as usize;
+                assert!(nn >= 1 && nn <= $bytes && kk <= $bytes);
+
                 $state {
                     m: [0; 16],
                     h: [iv0() ^ $vec::new(p[0], p[1], p[2], p[3]),
                         iv1() ^ $vec::new(p[4], p[5], p[6], p[7])],
                     t: 0,
-                    nn: p[0] as u8 as usize,
+                    nn: nn,
                 }
             }
 
@@ -246,6 +251,7 @@ macro_rules! blake2_impl {
                 $state::unshuffle(v);
             }
 
+            #[allow(eq_op)]
             fn compress(&mut self, f0: $word, f1: $word) {
                 use $crate::blake2::SIGMA;
 

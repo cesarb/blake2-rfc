@@ -24,6 +24,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#![allow(inline_always)]
+
 use simdty::u64x4;
 
 #[cfg(feature = "simd_opt")]

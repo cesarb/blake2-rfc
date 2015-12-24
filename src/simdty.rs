@@ -25,6 +25,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 #![allow(dead_code)]
+#![allow(inline_always)]
 #![allow(non_camel_case_types)]
 
 #[cfg(feature = "simd")]

@@ -24,6 +24,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#![allow(inline_always)]
+
 #[cfg(feature = "simd")]
 macro_rules! transmute_shuffle {
     ($tmp:ident, $shuffle:ident, $vec:expr, $idx:expr) => {

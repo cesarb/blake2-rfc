@@ -24,6 +24,8 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#![allow(inline_always)]
+
 use simd_opt;
 
 pub use simdty::{u32x4, u64x4};
