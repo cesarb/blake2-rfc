@@ -34,9 +34,9 @@ macro_rules! transmute_shuffle {
             use simdint::$shuffle;
             use std::mem::transmute;
 
-            let tmp: $tmp = transmute($vec);
-            let tmp: $tmp = $shuffle(tmp, tmp, $idx);
-            transmute(tmp)
+            let tmp_i: $tmp = transmute($vec);
+            let tmp_o: $tmp = $shuffle(tmp_i, tmp_i, $idx);
+            transmute(tmp_o)
         }
     }
 }

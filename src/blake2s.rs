@@ -68,6 +68,8 @@ blake2_bench_impl!(Blake2s, 32);
 
 #[cfg(test)]
 mod tests {
+    #![allow(result_unwrap_used)]
+
     use std::io::prelude::*;
 
     extern crate data_encoding;
