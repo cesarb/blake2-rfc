@@ -72,17 +72,17 @@ blake2_bench_impl!(Blake2b, 64);
 mod tests {
     use std::io::prelude::*;
 
-    extern crate rustc_serialize as serialize;
-    use self::serialize::hex::FromHex;
+    extern crate data_encoding;
+    use self::data_encoding::base16;
 
     use blake2::selftest_seq;
     use super::{Blake2b, blake2b};
 
     #[test]
     fn test_empty() {
-        assert_eq!(&blake2b(64, &[], b""),
-            &"786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"
-             .from_hex().unwrap()[..]);
+        assert_eq!(&blake2b(64, &[], b""), &base16::decode(
+            b"786A02F742015903C6C6FD852552D272912F4740E15847618A86E217F71F5419D25E1031AFEE585313896444934EB04B903A685B1448B755D56F701AFE9BE2CE")
+            .unwrap()[..]);
     }
 
     #[test]
@@ -124,8 +124,8 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(&state.finalize(),
-            &"645572ca5756f9104329ed543735fc11904f0c18c4df8adf930f22d07f3094919a519ff34fd240ae3f5d5b4c8042225c109fb951036fdc99e7d2cd0c1d36b267"
-             .from_hex().unwrap()[..]);
+        assert_eq!(&state.finalize(), &base16::decode(
+            b"645572CA5756F9104329ED543735FC11904F0C18C4DF8ADF930F22D07F3094919A519FF34FD240AE3F5D5B4C8042225C109FB951036FDC99E7D2CD0C1D36B267")
+            .unwrap()[..]);
     }
 }

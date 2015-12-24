@@ -70,17 +70,17 @@ blake2_bench_impl!(Blake2s, 32);
 mod tests {
     use std::io::prelude::*;
 
-    extern crate rustc_serialize as serialize;
-    use self::serialize::hex::FromHex;
+    extern crate data_encoding;
+    use self::data_encoding::base16;
 
     use blake2::selftest_seq;
     use super::{Blake2s, blake2s};
 
     #[test]
     fn test_empty() {
-        assert_eq!(&blake2s(32, &[], b""),
-            &"69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9"
-             .from_hex().unwrap()[..]);
+        assert_eq!(&blake2s(32, &[], b""), &base16::decode(
+            b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
+            .unwrap()[..]);
     }
 
     #[test]
@@ -122,8 +122,8 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(&state.finalize(),
-            &"2a8e26830310da3ef7f7032b7b1af11b989aba44a3713a22f539f69bd2ce4a87"
-             .from_hex().unwrap()[..]);
+        assert_eq!(&state.finalize(), &base16::decode(
+            b"2A8E26830310DA3EF7F7032B7B1AF11B989ABA44A3713A22F539F69BD2CE4A87")
+            .unwrap()[..]);
     }
 }
