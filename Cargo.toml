@@ -6,7 +6,7 @@ description = "A pure Rust implementation of BLAKE2 based on RFC 7693."
 repository = "https://github.com/cesarb/blake2-rfc"
 readme = "README.md"
 keywords = ["blake2", "blake2b", "blake2s", "hash", "crypto"]
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [features]
 bench = []
