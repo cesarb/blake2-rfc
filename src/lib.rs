@@ -16,7 +16,8 @@
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 
-#[cfg(all(feature = "bench", test))] extern crate test;
+#[cfg(all(feature = "bench", test))]
+extern crate test;
 
 extern crate constant_time_eq;
 

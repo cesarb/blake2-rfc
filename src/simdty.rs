@@ -7,7 +7,6 @@
 
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
-#![cfg_attr(feature = "clippy", allow(inline_always))]
 
 #[cfg(feature = "simd")]
 macro_rules! decl_simd {
@@ -63,6 +62,7 @@ pub type u16x16 = Simd16<u16>;
 
 pub type u8x32 = Simd32<u8>;
 
+#[cfg_attr(feature = "clippy", allow(inline_always))]
 impl<T> Simd4<T> {
     #[inline(always)]
     pub fn new(e0: T, e1: T, e2: T, e3: T) -> Simd4<T> {

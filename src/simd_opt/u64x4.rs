@@ -16,7 +16,7 @@ pub fn rotate_right_const(vec: u64x4, n: u32) -> u64x4 {
         32 => rotate_right_32(vec),
         24 => rotate_right_24(vec),
         16 => rotate_right_16(vec),
-        _ => rotate_right_any(vec, n),
+         _ => rotate_right_any(vec, n),
     }
 }
 
