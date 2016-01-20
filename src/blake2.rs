@@ -26,7 +26,7 @@ macro_rules! blake2_impl {
         use std::io;
 
         use $crate::as_bytes::AsBytes;
-        use $crate::bytes::{MutableByteVector, copy_memory};
+        use $crate::bytes::BytesExt;
         use $crate::constant_time_eq::constant_time_eq;
         use $crate::simd::{Vector4, $vec};
 
@@ -118,7 +118,7 @@ macro_rules! blake2_impl {
                 };
 
                 if kk > 0 {
-                    copy_memory(k, state.m.as_mut_bytes());
+                    state.m.as_mut_bytes().copy_bytes_from(k);
                     state.t = $bytes * 2;
                 }
                 state
@@ -152,7 +152,7 @@ macro_rules! blake2_impl {
                     let part = &rest[..len];
                     rest = &rest[part.len()..];
 
-                    copy_memory(part, &mut self.m.as_mut_bytes()[off..]);
+                    self.m.as_mut_bytes()[off..].copy_bytes_from(part);
                     self.t = self.t.checked_add(part.len() as u64).expect("hash data length overflow");
                 }
 
@@ -162,14 +162,14 @@ macro_rules! blake2_impl {
                     let part = &rest[..($bytes * 2)];
                     rest = &rest[part.len()..];
 
-                    copy_memory(part, self.m.as_mut_bytes());
+                    self.m.as_mut_bytes().copy_bytes_from(part);
                     self.t = self.t.checked_add(part.len() as u64).expect("hash data length overflow");
                 }
 
                 if rest.len() > 0 {
                     self.compress(0, 0);
 
-                    copy_memory(rest, self.m.as_mut_bytes());
+                    self.m.as_mut_bytes().copy_bytes_from(rest);
                     self.t = self.t.checked_add(rest.len() as u64).expect("hash data length overflow");
                 }
             }
@@ -188,7 +188,7 @@ macro_rules! blake2_impl {
             fn finalize_with_flag(mut self, f1: $word) -> $result {
                 let off = (self.t % ($bytes * 2)) as usize;
                 if off != 0 {
-                    self.m.as_mut_bytes()[off..].set_memory(0);
+                    self.m.as_mut_bytes()[off..].set_bytes(0);
                 }
 
                 self.compress(!0, f1);
