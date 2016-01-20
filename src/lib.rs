@@ -24,10 +24,7 @@ mod as_bytes;
 mod bytes;
 
 mod simdty;
-#[allow(dead_code)] mod simdint {
-    #[cfg(feature = "simd")]
-    include!("simdint.rs");
-}
+mod simdint;
 mod simdop;
 mod simd_opt;
 mod simd;
