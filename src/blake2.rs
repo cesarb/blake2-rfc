@@ -41,7 +41,7 @@ macro_rules! blake2_impl {
             nn: usize,
         }
 
-        #[cfg_attr(feature="clippy", allow(len_without_is_empty))]
+        #[cfg_attr(feature = "clippy", allow(len_without_is_empty))]
         impl $result {
             /// Returns the contained hash result as a byte string.
             #[inline]
@@ -104,7 +104,7 @@ macro_rules! blake2_impl {
             pub fn new(nn: usize) -> Self { Self::with_key(nn, &[]) }
 
             /// Creates a new hashing context with a key.
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
             pub fn with_key(nn: usize, k: &[u8]) -> Self {
                 let kk = k.len();
                 assert!(nn >= 1 && nn <= $bytes && kk <= $bytes);
@@ -125,7 +125,7 @@ macro_rules! blake2_impl {
             }
 
             #[doc(hidden)]
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
             pub fn with_parameter_block(p: &[$word; 8]) -> Self {
                 let nn = p[0] as u8 as usize;
                 let kk = (p[0] >> 8) as u8 as usize;
@@ -141,7 +141,7 @@ macro_rules! blake2_impl {
             }
 
             /// Updates the hashing context with more data.
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
             pub fn update(&mut self, data: &[u8]) {
                 let mut rest = data;
 
@@ -184,7 +184,7 @@ macro_rules! blake2_impl {
                 self.finalize_with_flag(!0)
             }
 
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
             fn finalize_with_flag(mut self, f1: $word) -> $result {
                 let off = (self.t % ($bytes * 2)) as usize;
                 if off != 0 {
@@ -236,7 +236,7 @@ macro_rules! blake2_impl {
                 $state::unshuffle(v);
             }
 
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation, eq_op))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation, eq_op))]
             fn compress(&mut self, f0: $word, f1: $word) {
                 use $crate::blake2::SIGMA;
 
@@ -296,7 +296,7 @@ macro_rules! blake2_impl {
     }
 }
 
-#[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+#[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
 pub fn selftest_seq(len: usize) -> Vec<u8> {
     use std::num::Wrapping;
 
@@ -353,7 +353,7 @@ macro_rules! blake2_bench_impl {
             use blake2::selftest_seq;
             use super::$state;
 
-            #[cfg_attr(feature="clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
             fn bench_blake2(bytes: u64, b: &mut Bencher) {
                 let data = selftest_seq(bytes as usize);
 

@@ -7,7 +7,7 @@
 
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
-#![cfg_attr(feature="clippy", allow(inline_always))]
+#![cfg_attr(feature = "clippy", allow(inline_always))]
 
 #[cfg(feature = "simd")]
 macro_rules! decl_simd {
