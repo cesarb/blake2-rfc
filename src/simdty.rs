@@ -6,8 +6,8 @@
 // copied, modified, or distributed except according to those terms.
 
 #![allow(dead_code)]
-#![allow(inline_always)]
 #![allow(non_camel_case_types)]
+#![cfg_attr(feature="clippy", allow(inline_always))]
 
 #[cfg(feature = "simd")]
 macro_rules! decl_simd {
