@@ -1,4 +1,4 @@
-// Copyright 2015 blake2-rfc Developers
+// Copyright 2016 blake2-rfc Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -8,16 +8,19 @@
 use std::mem;
 use std::slice;
 
+pub unsafe trait Safe {}
+
 pub trait AsBytes {
     fn as_bytes(&self) -> &[u8];
     fn as_mut_bytes(&mut self) -> &mut [u8];
 }
 
-impl<T: Copy> AsBytes for [T] {
+impl<T: Safe> AsBytes for [T] {
     #[inline]
     fn as_bytes(&self) -> &[u8] {
         unsafe {
-            slice::from_raw_parts(self.as_ptr() as *const u8, self.len() * mem::size_of::<T>())
+            slice::from_raw_parts(self.as_ptr() as *const u8,
+                                  self.len() * mem::size_of::<T>())
         }
     }
 
@@ -29,3 +32,12 @@ impl<T: Copy> AsBytes for [T] {
         }
     }
 }
+
+unsafe impl Safe for u8 {}
+unsafe impl Safe for u16 {}
+unsafe impl Safe for u32 {}
+unsafe impl Safe for u64 {}
+unsafe impl Safe for i8 {}
+unsafe impl Safe for i16 {}
+unsafe impl Safe for i32 {}
+unsafe impl Safe for i64 {}

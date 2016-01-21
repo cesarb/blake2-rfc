@@ -1,4 +1,4 @@
-// Copyright 2015 blake2-rfc Developers
+// Copyright 2016 blake2-rfc Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -7,6 +7,8 @@
 
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
+
+use as_bytes::Safe;
 
 #[cfg(feature = "simd")]
 macro_rules! decl_simd {
@@ -69,3 +71,9 @@ impl<T> Simd4<T> {
         Simd4(e0, e1, e2, e3)
     }
 }
+
+unsafe impl<T: Safe> Safe for Simd2<T> {}
+unsafe impl<T: Safe> Safe for Simd4<T> {}
+unsafe impl<T: Safe> Safe for Simd8<T> {}
+unsafe impl<T: Safe> Safe for Simd16<T> {}
+unsafe impl<T: Safe> Safe for Simd32<T> {}
