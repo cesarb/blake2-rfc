@@ -297,6 +297,7 @@ macro_rules! blake2_impl {
 }
 
 #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
+#[cold]
 pub fn selftest_seq(len: usize) -> Vec<u8> {
     use std::num::Wrapping;
 
@@ -318,6 +319,7 @@ pub fn selftest_seq(len: usize) -> Vec<u8> {
 macro_rules! blake2_selftest_impl {
     ($state:ident, $func:ident, $res:expr, $md_len:expr, $in_len:expr) => {
         /// Runs the self-test for this hash function.
+        #[cold]
         pub fn selftest() {
             use $crate::blake2::selftest_seq;
 

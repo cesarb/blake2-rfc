@@ -39,6 +39,7 @@ pub mod blake2b;
 pub mod blake2s;
 
 /// Runs the self-test for both BLAKE2b and BLAKE2s.
+#[cold]
 pub fn selftest() {
     blake2b::selftest();
     blake2s::selftest();
