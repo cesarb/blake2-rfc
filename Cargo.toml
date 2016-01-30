@@ -1,9 +1,10 @@
 [package]
 name = "blake2-rfc"
-version = "0.2.14"
+version = "0.2.15"
 authors = ["Cesar Eduardo Barros <cesarb@cesarb.eti.br>"]
 description = "A pure Rust implementation of BLAKE2 based on RFC 7693."
 repository = "https://github.com/cesarb/blake2-rfc"
+documentation = "https://cesarb.github.io/blake2-rfc/blake2_rfc/"
 readme = "README.md"
 keywords = ["blake2", "blake2b", "blake2s", "hash", "crypto"]
 license = "MIT OR Apache-2.0"
