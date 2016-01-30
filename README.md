@@ -40,8 +40,8 @@ to present a false assurance.
 
 ## Non-RFC uses
 
-This crate is limited to the features described in the draft RFC: only
-the "digest length" and "key length" parameters can be used.
+This crate is limited to the features described in the RFC: only the
+"digest length" and "key length" parameters can be used.
 
 If you need to use other advanced BLAKE2 features, this crate has an
 undocumented function to create a hashing context with an arbitrary
