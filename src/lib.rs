@@ -7,6 +7,8 @@
 
 //! A pure Rust implementation of BLAKE2 based on RFC 7693.
 
+#![warn(missing_docs)]
+
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 #![cfg_attr(feature = "clippy", warn(clippy_pedantic))]
