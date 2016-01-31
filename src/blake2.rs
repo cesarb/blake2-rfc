@@ -153,7 +153,8 @@ macro_rules! blake2_impl {
                     rest = &rest[part.len()..];
 
                     self.m.as_mut_bytes()[off..].copy_bytes_from(part);
-                    self.t = self.t.checked_add(part.len() as u64).expect("hash data length overflow");
+                    self.t = self.t.checked_add(part.len() as u64)
+                        .expect("hash data length overflow");
                 }
 
                 while rest.len() >= $bytes * 2 {
@@ -163,14 +164,16 @@ macro_rules! blake2_impl {
                     rest = &rest[part.len()..];
 
                     self.m.as_mut_bytes().copy_bytes_from(part);
-                    self.t = self.t.checked_add(part.len() as u64).expect("hash data length overflow");
+                    self.t = self.t.checked_add(part.len() as u64)
+                        .expect("hash data length overflow");
                 }
 
                 if rest.len() > 0 {
                     self.compress(0, 0);
 
                     self.m.as_mut_bytes().copy_bytes_from(rest);
-                    self.t = self.t.checked_add(rest.len() as u64).expect("hash data length overflow");
+                    self.t = self.t.checked_add(rest.len() as u64)
+                        .expect("hash data length overflow");
                 }
             }
 
