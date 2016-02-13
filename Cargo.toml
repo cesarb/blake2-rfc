@@ -17,7 +17,7 @@ simd_asm = ["simd_opt"]
 
 [dependencies]
 constant_time_eq = "0.1.0"
-clippy = {version = "0.0.37", optional = true}
+clippy = {version = "0.0.41", optional = true}
 
 [dev-dependencies]
 data-encoding = "1.1.0"
