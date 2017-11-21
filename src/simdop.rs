@@ -8,7 +8,7 @@
 use simdty::{u32x4, u64x4};
 #[cfg(feature = "simd")] use simdint;
 
-use std::ops::{Add, BitXor, Shl, Shr};
+use core::ops::{Add, BitXor, Shl, Shr};
 
 macro_rules! impl_ops {
     ($vec:ident) => {

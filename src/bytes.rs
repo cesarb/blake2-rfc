@@ -7,7 +7,7 @@
 
 //! Operations on byte slices.
 
-use std::ptr;
+use core::ptr;
 
 /// Operations on byte slices.
 pub trait BytesExt {

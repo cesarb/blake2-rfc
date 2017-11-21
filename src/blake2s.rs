@@ -51,8 +51,6 @@ blake2_bench_impl!(Blake2s, 32);
 mod tests {
     #![cfg_attr(feature = "clippy", allow(result_unwrap_used))]
 
-    use std::io::prelude::*;
-
     extern crate data_encoding;
     use self::data_encoding::base16;
 
@@ -84,9 +82,12 @@ mod tests {
         assert_eq!(&ctx.finalize(), &blake2s(32, &[], &data));
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_write() {
-        let data = selftest_seq(65536);
+        use std::io::prelude::*;
+
+        let data = selftest_seq(1024);
 
         let mut ctx = Blake2s::new(32);
         ctx.update(&data[..]);

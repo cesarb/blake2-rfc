@@ -7,6 +7,8 @@
 
 //! A pure Rust implementation of BLAKE2 based on RFC 7693.
 
+#![no_std]
+
 #![warn(missing_docs)]
 
 #![cfg_attr(feature = "clippy", feature(plugin))]
@@ -18,9 +20,14 @@
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 
+#[cfg(feature = "std")]
+#[macro_use]
+extern crate std;
+
 #[cfg(all(feature = "bench", test))]
 extern crate test;
 
+extern crate arrayvec;
 extern crate constant_time_eq;
 
 mod as_bytes;

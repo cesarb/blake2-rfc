@@ -74,6 +74,12 @@ these optimizations, benchmark each one (the `bench` feature enables
 --features="bench simd_asm"`). They have currently been tuned for SSE2
 (x86 and x86-64) and NEON (arm).
 
+## `no_std` support
+
+This crate links against the Rust standard library by default, to
+provide implementations of `std::io::Write`. To build `no_std`, use
+[`default-features = false`](http://doc.crates.io/manifest.html#rules).
+
 ## License
 
 Licensed under either of
