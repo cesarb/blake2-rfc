@@ -5,6 +5,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
+use arrayvec::ArrayVec;
+
 pub const SIGMA: [[usize; 16]; 10] = [
     [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15],
     [14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3],
@@ -21,7 +23,9 @@ pub const SIGMA: [[usize; 16]; 10] = [
 macro_rules! blake2_impl {
     ($state:ident, $result:ident, $func:ident, $word:ident, $vec:ident,
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
-        use std::cmp;
+        use core::cmp;
+
+        #[cfg(feature = "std")]
         use std::io;
 
         use $crate::as_bytes::AsBytes;
@@ -279,6 +283,7 @@ macro_rules! blake2_impl {
             }
         }
 
+        #[cfg(feature = "std")]
         impl io::Write for $state {
             fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
                 if self.t.checked_add(buf.len() as u64).is_none() {
@@ -300,11 +305,11 @@ macro_rules! blake2_impl {
 
 #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
 #[cold]
-pub fn selftest_seq(len: usize) -> Vec<u8> {
-    use std::num::Wrapping;
+pub fn selftest_seq(len: usize) -> ArrayVec<[u8; 1024]> {
+    use core::num::Wrapping;
 
     let seed = Wrapping(len as u32);
-    let mut out = Vec::with_capacity(len);
+    let mut out = ArrayVec::new();
 
     let mut a = Wrapping(0xDEAD4BAD) * seed;
     let mut b = Wrapping(1);

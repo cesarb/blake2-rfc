@@ -10,12 +10,15 @@ keywords = ["blake2", "blake2b", "blake2s", "hash", "crypto"]
 license = "MIT OR Apache-2.0"
 
 [features]
+default = ["std"]
 bench = []
 simd = []
 simd_opt = ["simd"]
 simd_asm = ["simd_opt"]
+std = []
 
 [dependencies]
+arrayvec = {version = "0.4.6", default-features = false}
 constant_time_eq = "0.1.0"
 clippy = {version = "0.0.41", optional = true}
 

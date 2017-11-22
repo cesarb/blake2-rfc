@@ -54,8 +54,6 @@ blake2_bench_impl!(Blake2b, 64);
 mod tests {
     #![cfg_attr(feature = "clippy", allow(result_unwrap_used))]
 
-    use std::io::prelude::*;
-
     extern crate data_encoding;
     use self::data_encoding::HEXUPPER;
 
@@ -87,9 +85,12 @@ mod tests {
         assert_eq!(&ctx.finalize(), &blake2b(64, &[], &data));
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_write() {
-        let data = selftest_seq(65536);
+        use std::io::prelude::*;
+
+        let data = selftest_seq(1024);
 
         let mut ctx = Blake2b::new(64);
         ctx.update(&data[..]);
@@ -100,6 +101,7 @@ mod tests {
         assert_eq!(&writer.finalize(), &ctx.finalize());
     }
 
+    #[cfg_attr(debug_assertions, ignore)]
     #[test]
     fn test_4g() {
         const ZEROS: [u8; 4096] = [0; 4096];

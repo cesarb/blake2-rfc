@@ -5,8 +5,8 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
 
-use std::mem;
-use std::slice;
+use core::mem;
+use core::slice;
 
 pub unsafe trait Safe {}
 

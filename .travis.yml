@@ -6,3 +6,5 @@ rust:
 script:
   - cargo build --verbose --release
   - cargo test --verbose --release
+  - cargo build --verbose --release --no-default-features
+  - cargo test --verbose --release --no-default-features
