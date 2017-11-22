@@ -1,4 +1,5 @@
 // Copyright 2015 blake2-rfc Developers
+// Copyright 2017 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -54,14 +55,14 @@ mod tests {
     use std::io::prelude::*;
 
     extern crate data_encoding;
-    use self::data_encoding::base16;
+    use self::data_encoding::HEXUPPER;
 
     use blake2::selftest_seq;
     use super::{Blake2s, blake2s};
 
     #[test]
     fn test_empty() {
-        assert_eq!(&blake2s(32, &[], b""), &base16::decode(
+        assert_eq!(&blake2s(32, &[], b""), &HEXUPPER.decode(
             b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
             .unwrap()[..]);
     }
@@ -105,7 +106,7 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(&state.finalize(), &base16::decode(
+        assert_eq!(&state.finalize(), &HEXUPPER.decode(
             b"2A8E26830310DA3EF7F7032B7B1AF11B989ABA44A3713A22F539F69BD2CE4A87")
             .unwrap()[..]);
     }
