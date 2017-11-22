@@ -98,6 +98,7 @@ mod tests {
         assert_eq!(&writer.finalize(), &ctx.finalize());
     }
 
+    #[cfg_attr(debug_assertions, ignore)]
     #[test]
     fn test_4g() {
         const ZEROS: [u8; 4096] = [0; 4096];
