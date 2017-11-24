@@ -20,7 +20,7 @@
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", all(feature = "bench", test)))]
 #[macro_use]
 extern crate std;
 

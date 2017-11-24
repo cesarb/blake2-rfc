@@ -357,16 +357,20 @@ macro_rules! blake2_bench_impl {
     ($state:ident, $bytes:expr) => {
         #[cfg(all(feature = "bench", test))]
         mod bench {
+            use std::iter::repeat;
+            use std::vec::Vec;
             use test::Bencher;
 
             use blake2::selftest_seq;
             use super::$state;
 
-            #[cfg_attr(feature = "clippy", allow(cast_possible_truncation))]
-            fn bench_blake2(bytes: u64, b: &mut Bencher) {
-                let data = selftest_seq(bytes as usize);
+            fn bench_blake2(bytes: usize, b: &mut Bencher) {
+                let data: Vec<u8> = repeat(selftest_seq(1024))
+                    .flat_map(|v| v)
+                    .take(bytes)
+                    .collect();
 
-                b.bytes = bytes;
+                b.bytes = bytes as u64;
                 b.iter(|| {
                     let mut state = $state::new($bytes);
                     state.update(&data[..]);
