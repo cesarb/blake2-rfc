@@ -1,6 +1,10 @@
 language: rust
 matrix:
   include:
+  - rust: 1.20.0
+    env: FEATURES=
+  - rust: 1.20.0
+    env: FEATURES=--no-default-features
   - rust: stable
     env: FEATURES=
   - rust: stable
