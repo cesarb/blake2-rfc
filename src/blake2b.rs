@@ -34,6 +34,8 @@
 //! a byte string (the comparison will take constant time), or converted
 //! into a byte string.
 
+#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
+
 blake2_impl!(Blake2b, Blake2bResult, blake2b, u64, u64x4, 64, 32, 24, 16, 63, [
     0x6A09E667F3BCC908, 0xBB67AE8584CAA73B,
     0x3C6EF372FE94F82B, 0xA54FF53A5F1D36F1,

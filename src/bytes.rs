@@ -10,6 +10,7 @@
 use core::ptr;
 
 /// Operations on byte slices.
+#[cfg_attr(feature = "cargo-clippy", allow(stutter))]
 pub trait BytesExt {
     /// Set all bytes of this slice to the same value.
     ///

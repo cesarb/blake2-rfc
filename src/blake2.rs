@@ -303,7 +303,7 @@ macro_rules! blake2_impl {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+#[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, unreadable_literal))]
 #[cold]
 pub fn selftest_seq(len: usize) -> ArrayVec<[u8; 1024]> {
     use core::num::Wrapping;

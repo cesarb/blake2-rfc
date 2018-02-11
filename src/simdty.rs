@@ -8,6 +8,9 @@
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
 
+// https://github.com/rust-lang-nursery/rust-clippy/issues/2453
+#![cfg_attr(feature = "cargo-clippy", allow(empty_line_after_outer_attr))]
+
 use as_bytes::Safe;
 
 #[cfg(feature = "simd")]
@@ -67,7 +70,7 @@ pub type u8x32 = Simd32<u8>;
 #[cfg_attr(feature = "cargo-clippy", allow(inline_always))]
 impl<T> Simd4<T> {
     #[inline(always)]
-    pub fn new(e0: T, e1: T, e2: T, e3: T) -> Simd4<T> {
+    pub fn new(e0: T, e1: T, e2: T, e3: T) -> Self {
         Simd4(e0, e1, e2, e3)
     }
 }

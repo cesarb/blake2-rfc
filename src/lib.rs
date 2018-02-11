@@ -12,6 +12,7 @@
 #![warn(missing_docs)]
 
 #![cfg_attr(feature = "cargo-clippy", warn(clippy_pedantic))]
+#![cfg_attr(feature = "cargo-clippy", allow(missing_docs_in_private_items))]
 
 #![cfg_attr(all(feature = "bench", test), feature(test))]
 #![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
