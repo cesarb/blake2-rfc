@@ -50,7 +50,7 @@ blake2_bench_impl!(Blake2s, 32);
 
 #[cfg(test)]
 mod tests {
-    #![cfg_attr(feature = "clippy", allow(result_unwrap_used))]
+    #![cfg_attr(feature = "cargo-clippy", allow(result_unwrap_used))]
 
     extern crate data_encoding;
     use self::data_encoding::HEXUPPER;

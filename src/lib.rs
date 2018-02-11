@@ -11,9 +11,7 @@
 
 #![warn(missing_docs)]
 
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-#![cfg_attr(feature = "clippy", warn(clippy_pedantic))]
+#![cfg_attr(feature = "cargo-clippy", warn(clippy_pedantic))]
 
 #![cfg_attr(all(feature = "bench", test), feature(test))]
 #![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
