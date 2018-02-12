@@ -180,29 +180,57 @@ macro_rules! blake2_impl {
                 }
             }
 
-            /// Consumes the hashing context and returns the resulting hash.
-            pub fn finalize(self) -> $result {
-                self.finalize_with_flag(0)
-            }
-
-            #[doc(hidden)]
-            pub fn finalize_last_node(self) -> $result {
-                self.finalize_with_flag(!0)
-            }
-
             #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
-            fn finalize_with_flag(mut self, f1: $word) -> $result {
+            fn finalize_with_flag(&mut self, f1: $word) {
                 let off = (self.t % ($bytes * 2)) as usize;
                 if off != 0 {
                     self.m.as_mut_bytes()[off..].set_bytes(0);
                 }
 
                 self.compress(!0, f1);
+            }
 
+            /// Consumes the hashing context and returns the resulting hash.
+            #[inline]
+            pub fn finalize(mut self) -> $result {
+                self.finalize_with_flag(0);
+                self.into_result()
+            }
+
+            #[doc(hidden)]
+            #[inline]
+            pub fn finalize_last_node(mut self) -> $result {
+                self.finalize_with_flag(!0);
+                self.into_result()
+            }
+
+            #[doc(hidden)]
+            pub fn finalize_inplace(&mut self) -> &[u8] {
+                self.finalize_with_flag(0);
+                self.result_inplace()
+            }
+
+            #[doc(hidden)]
+            pub fn finalize_last_node_inplace(&mut self) -> &[u8] {
+                self.finalize_with_flag(!0);
+                self.result_inplace()
+            }
+
+            #[inline]
+            fn into_result(self) -> $result {
                 $result {
                     h: [self.h[0].to_le(), self.h[1].to_le()],
                     nn: self.nn,
                 }
+            }
+
+            fn result_inplace(&mut self) -> &[u8] {
+                self.h[0] = self.h[0].to_le();
+                self.h[1] = self.h[1].to_le();
+
+                let result = &self.h.as_bytes()[..self.nn];
+                self.nn = 0;    // poison self
+                result
             }
 
             #[inline(always)]
