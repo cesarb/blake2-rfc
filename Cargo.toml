@@ -15,7 +15,6 @@ travis-ci = { repository = "cesarb/blake2-rfc" }
 
 [features]
 default = ["std"]
-bench = []
 simd = []
 simd_opt = ["simd"]
 simd_asm = ["simd_opt"]

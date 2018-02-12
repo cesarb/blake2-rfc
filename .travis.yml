@@ -14,21 +14,21 @@ matrix:
   - rust: beta
     env: FEATURES=--no-default-features
   - rust: nightly
-    env: FEATURES=--features=bench
+    env: FEATURES=
   - rust: nightly
-    env: FEATURES=--features=simd,bench
+    env: FEATURES=--features=simd
   - rust: nightly
-    env: FEATURES=--features=simd_opt,bench
+    env: FEATURES=--features=simd_opt
   - rust: nightly
-    env: FEATURES=--features=simd_asm,bench
+    env: FEATURES=--features=simd_asm
   - rust: nightly
-    env: 'FEATURES="--no-default-features --features=bench"'
+    env: 'FEATURES="--no-default-features"'
   - rust: nightly
-    env: 'FEATURES="--no-default-features --features=simd,bench"'
+    env: 'FEATURES="--no-default-features --features=simd"'
   - rust: nightly
-    env: 'FEATURES="--no-default-features --features=simd_opt,bench"'
+    env: 'FEATURES="--no-default-features --features=simd_opt"'
   - rust: nightly
-    env: 'FEATURES="--no-default-features --features=simd_asm,bench"'
+    env: 'FEATURES="--no-default-features --features=simd_asm"'
 script:
   - cargo build --verbose $FEATURES
   - cargo test --verbose $FEATURES

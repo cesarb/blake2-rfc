@@ -48,8 +48,6 @@ blake2_selftest_impl!(Blake2s, blake2s, [
     0xFB, 0xDC, 0x88, 0x79, 0x7F, 0x4C, 0x1D, 0xFE,
 ], [ 16, 20, 28, 32 ], [ 0,  3,  64, 65, 255, 1024 ]);
 
-blake2_bench_impl!(Blake2s);
-
 #[cfg(test)]
 mod tests {
     #![cfg_attr(feature = "cargo-clippy", allow(result_unwrap_used))]

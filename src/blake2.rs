@@ -339,6 +339,7 @@ macro_rules! blake2_impl {
 
 #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, unreadable_literal))]
 #[cold]
+#[doc(hidden)]
 pub fn selftest_seq(len: usize) -> ArrayVec<[u8; 1024]> {
     use core::num::Wrapping;
 
@@ -383,38 +384,6 @@ macro_rules! blake2_selftest_impl {
             }
 
             assert_eq!(&state.finalize(), &BLAKE2_RES[..]);
-        }
-    }
-}
-
-macro_rules! blake2_bench_impl {
-    ($state:ident) => {
-        #[cfg(all(feature = "bench", test))]
-        mod bench {
-            use std::iter::repeat;
-            use std::vec::Vec;
-            use test::Bencher;
-
-            use blake2::selftest_seq;
-            use super::$state;
-
-            fn bench_blake2(bytes: usize, b: &mut Bencher) {
-                let data: Vec<u8> = repeat(selftest_seq(1024))
-                    .flat_map(|v| v)
-                    .take(bytes)
-                    .collect();
-
-                b.bytes = bytes as u64;
-                b.iter(|| {
-                    let mut state = $state::default();
-                    state.update(&data[..]);
-                    state.finalize()
-                })
-            }
-
-            #[bench] fn bench_16(b: &mut Bencher) { bench_blake2(16, b) }
-            #[bench] fn bench_4k(b: &mut Bencher) { bench_blake2(4096, b) }
-            #[bench] fn bench_64k(b: &mut Bencher) { bench_blake2(65536, b) }
         }
     }
 }
