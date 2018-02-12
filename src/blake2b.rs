@@ -50,7 +50,7 @@ blake2_selftest_impl!(Blake2b, blake2b, [
     0x7F, 0x5E, 0x76, 0x5A, 0x7B, 0xCC, 0xD4, 0x75,
 ], [ 20, 32, 48, 64 ], [ 0, 3, 128, 129, 255, 1024 ]);
 
-blake2_bench_impl!(Blake2b, 64);
+blake2_bench_impl!(Blake2b);
 
 #[cfg(test)]
 mod tests {
@@ -65,6 +65,13 @@ mod tests {
     #[test]
     fn test_empty() {
         assert_eq!(&blake2b(64, &[], b""), &HEXUPPER.decode(
+            b"786A02F742015903C6C6FD852552D272912F4740E15847618A86E217F71F5419D25E1031AFEE585313896444934EB04B903A685B1448B755D56F701AFE9BE2CE")
+            .unwrap()[..]);
+    }
+
+    #[test]
+    fn test_default() {
+        assert_eq!(&Blake2b::default().finalize(), &HEXUPPER.decode(
             b"786A02F742015903C6C6FD852552D272912F4740E15847618A86E217F71F5419D25E1031AFEE585313896444934EB04B903A685B1448B755D56F701AFE9BE2CE")
             .unwrap()[..]);
     }

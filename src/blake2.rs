@@ -283,6 +283,12 @@ macro_rules! blake2_impl {
             }
         }
 
+        impl Default for $state {
+            fn default() -> Self {
+                Self::new($bytes)
+            }
+        }
+
         #[cfg(feature = "std")]
         impl io::Write for $state {
             fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -354,7 +360,7 @@ macro_rules! blake2_selftest_impl {
 }
 
 macro_rules! blake2_bench_impl {
-    ($state:ident, $bytes:expr) => {
+    ($state:ident) => {
         #[cfg(all(feature = "bench", test))]
         mod bench {
             use std::iter::repeat;
@@ -372,7 +378,7 @@ macro_rules! blake2_bench_impl {
 
                 b.bytes = bytes as u64;
                 b.iter(|| {
-                    let mut state = $state::new($bytes);
+                    let mut state = $state::default();
                     state.update(&data[..]);
                     state.finalize()
                 })
