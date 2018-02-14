@@ -36,10 +36,11 @@
 
 #![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
 
-blake2_impl!(Blake2s, Blake2sResult, blake2s, u32, u32x4, 32, 16, 12, 8, 7, [
+blake2_impl!(Blake2s, Blake2sResult, blake2s, u32, u32x4, 32, [
     0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
     0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
 ]);
+blake2_compress_impl!(Blake2s, compress, u32, u32x4, 32, 16, 12, 8, 7);
 
 blake2_selftest_impl!(Blake2s, blake2s, [
     0x6A, 0x41, 0x1F, 0x08, 0xCE, 0x25, 0xAD, 0xCD,

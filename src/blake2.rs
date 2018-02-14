@@ -22,7 +22,7 @@ pub const SIGMA: [[usize; 16]; 10] = [
 
 macro_rules! blake2_impl {
     ($state:ident, $result:ident, $func:ident, $word:ident, $vec:ident,
-     $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
+     $bytes:expr, $IV:expr) => {
         use core::cmp;
 
         #[cfg(feature = "std")]
@@ -243,9 +243,41 @@ macro_rules! blake2_impl {
                 self.nn = 0;    // poison self
                 result
             }
+        }
 
+        impl Default for $state {
+            #[inline]
+            fn default() -> Self {
+                Self::new($bytes)
+            }
+        }
+
+        #[cfg(feature = "std")]
+        impl io::Write for $state {
+            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                if self.t.checked_add(buf.len() as u64).is_none() {
+                    return Err(io::Error::new(io::ErrorKind::WriteZero,
+                                              "counter overflow"));
+                }
+
+                self.update(buf);
+                Ok(buf.len())
+            }
+
+            #[inline]
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
+        }
+    }
+}
+
+macro_rules! blake2_compress_impl {
+    ($state:ident, $func:ident, $word:ident, $vec:ident,
+     $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr) => {
+        impl $state {
             #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, eq_op))]
-            fn compress(&mut self, f0: $word, f1: $word) {
+            fn $func(&mut self, f0: $word, f1: $word) {
                 #[inline]
                 fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
                     v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
@@ -319,31 +351,6 @@ macro_rules! blake2_impl {
 
                 h[0] ^= v[0] ^ v[2];
                 h[1] ^= v[1] ^ v[3];
-            }
-        }
-
-        impl Default for $state {
-            #[inline]
-            fn default() -> Self {
-                Self::new($bytes)
-            }
-        }
-
-        #[cfg(feature = "std")]
-        impl io::Write for $state {
-            fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-                if self.t.checked_add(buf.len() as u64).is_none() {
-                    return Err(io::Error::new(io::ErrorKind::WriteZero,
-                                              "counter overflow"));
-                }
-
-                self.update(buf);
-                Ok(buf.len())
-            }
-
-            #[inline]
-            fn flush(&mut self) -> io::Result<()> {
-                Ok(())
             }
         }
     }
