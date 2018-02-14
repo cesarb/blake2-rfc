@@ -90,10 +90,15 @@ macro_rules! blake2_impl {
 
         const IV: [$word; 8] = $IV;
 
-        #[inline(always)]
-        fn iv0() -> $vec { $vec::new(IV[0], IV[1], IV[2], IV[3]) }
-        #[inline(always)]
-        fn iv1() -> $vec { $vec::new(IV[4], IV[5], IV[6], IV[7]) }
+        #[inline]
+        fn iv0() -> $vec {
+            $vec::new(IV[0], IV[1], IV[2], IV[3])
+        }
+
+        #[inline]
+        fn iv1() -> $vec {
+            $vec::new(IV[4], IV[5], IV[6], IV[7])
+        }
 
         /// Convenience function for all-in-one computation.
         pub fn $func(nn: usize, k: &[u8], data: &[u8]) -> $result {
@@ -104,7 +109,10 @@ macro_rules! blake2_impl {
 
         impl $state {
             /// Creates a new hashing context without a key.
-            pub fn new(nn: usize) -> Self { Self::with_key(nn, &[]) }
+            #[inline]
+            pub fn new(nn: usize) -> Self {
+                Self::with_key(nn, &[])
+            }
 
             /// Creates a new hashing context with a key.
             #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
@@ -205,12 +213,14 @@ macro_rules! blake2_impl {
             }
 
             #[doc(hidden)]
+            #[inline]
             pub fn finalize_inplace(&mut self) -> &[u8] {
                 self.finalize_with_flag(0);
                 self.result_inplace()
             }
 
             #[doc(hidden)]
+            #[inline]
             pub fn finalize_last_node_inplace(&mut self) -> &[u8] {
                 self.finalize_with_flag(!0);
                 self.result_inplace()
@@ -224,6 +234,7 @@ macro_rules! blake2_impl {
                 }
             }
 
+            #[inline]
             fn result_inplace(&mut self) -> &[u8] {
                 self.h[0] = self.h[0].to_le();
                 self.h[1] = self.h[1].to_le();
@@ -233,7 +244,7 @@ macro_rules! blake2_impl {
                 result
             }
 
-            #[inline(always)]
+            #[inline]
             fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
                 v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
                 v[3] = (v[3] ^ v[0]).rotate_right_const(rd);
@@ -241,14 +252,14 @@ macro_rules! blake2_impl {
                 v[1] = (v[1] ^ v[2]).rotate_right_const(rb);
             }
 
-            #[inline(always)]
+            #[inline]
             fn shuffle(v: &mut [$vec; 4]) {
                 v[1] = v[1].shuffle_left_1();
                 v[2] = v[2].shuffle_left_2();
                 v[3] = v[3].shuffle_left_3();
             }
 
-            #[inline(always)]
+            #[inline]
             fn unshuffle(v: &mut [$vec; 4]) {
                 v[1] = v[1].shuffle_right_1();
                 v[2] = v[2].shuffle_right_2();
@@ -312,6 +323,7 @@ macro_rules! blake2_impl {
         }
 
         impl Default for $state {
+            #[inline]
             fn default() -> Self {
                 Self::new($bytes)
             }

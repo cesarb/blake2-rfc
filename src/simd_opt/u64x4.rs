@@ -21,12 +21,12 @@ pub fn rotate_right_const(vec: u64x4, n: u32) -> u64x4 {
 }
 
 #[cfg(not(feature = "simd_opt"))]
-#[inline(always)]
+#[inline]
 pub fn rotate_right_const(vec: u64x4, n: u32) -> u64x4 {
     rotate_right_any(vec, n)
 }
 
-#[inline(always)]
+#[inline]
 fn rotate_right_any(vec: u64x4, n: u32) -> u64x4 {
     let r = n;
     let l = 64 - r;
@@ -35,7 +35,7 @@ fn rotate_right_any(vec: u64x4, n: u32) -> u64x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[inline(always)]
+#[inline]
 fn rotate_right_32(vec: u64x4) -> u64x4 {
     if cfg!(any(target_feature = "sse2", target_feature = "neon")) {
         // 2 x pshufd (SSE2) / vpshufd (AVX2) / 2 x vrev (NEON)
@@ -50,7 +50,7 @@ fn rotate_right_32(vec: u64x4) -> u64x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[inline(always)]
+#[inline]
 fn rotate_right_24(vec: u64x4) -> u64x4 {
     if cfg!(all(feature = "simd_asm",
                 target_feature = "neon",
@@ -70,7 +70,7 @@ fn rotate_right_24(vec: u64x4) -> u64x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[inline(always)]
+#[inline]
 fn rotate_right_16(vec: u64x4) -> u64x4 {
     if cfg!(all(feature = "simd_asm",
                 target_feature = "neon",

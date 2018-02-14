@@ -20,12 +20,12 @@ pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
 }
 
 #[cfg(not(feature = "simd_opt"))]
-#[inline(always)]
+#[inline]
 pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
     rotate_right_any(vec, n)
 }
 
-#[inline(always)]
+#[inline]
 fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
     let r = n;
     let l = 32 - r;
@@ -34,7 +34,7 @@ fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[inline(always)]
+#[inline]
 fn rotate_right_16(vec: u32x4) -> u32x4 {
     if cfg!(target_feature = "ssse3") {
         // pshufb (SSSE3) / vpshufb (AVX2)
@@ -56,7 +56,7 @@ fn rotate_right_16(vec: u32x4) -> u32x4 {
 }
 
 #[cfg(feature = "simd_opt")]
-#[inline(always)]
+#[inline]
 fn rotate_right_8(vec: u32x4) -> u32x4 {
     if cfg!(target_feature = "ssse3") {
         // pshufb (SSSE3) / vpshufb (AVX2)

@@ -132,7 +132,7 @@ macro_rules! impl_vector4 {
                           self.3.to_le())
             }
 
-            #[inline(always)]
+            #[inline]
             fn wrapping_add(self, rhs: Self) -> Self {
                 self + rhs
             }
@@ -143,40 +143,40 @@ macro_rules! impl_vector4 {
             }
 
             #[cfg(feature = "simd")]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_1(self) -> Self {
                 use simdint::simd_shuffle4;
                 unsafe { simd_shuffle4(self, self, [1, 2, 3, 0]) }
             }
 
             #[cfg(not(feature = "simd"))]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_1(self) -> Self {
                 $vec::new(self.1, self.2, self.3, self.0)
             }
 
             #[cfg(feature = "simd")]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_2(self) -> Self {
                 use simdint::simd_shuffle4;
                 unsafe { simd_shuffle4(self, self, [2, 3, 0, 1]) }
             }
 
             #[cfg(not(feature = "simd"))]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_2(self) -> Self {
                 $vec::new(self.2, self.3, self.0, self.1)
             }
 
             #[cfg(feature = "simd")]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_3(self) -> Self {
                 use simdint::simd_shuffle4;
                 unsafe { simd_shuffle4(self, self, [3, 0, 1, 2]) }
             }
 
             #[cfg(not(feature = "simd"))]
-            #[inline(always)]
+            #[inline]
             fn shuffle_left_3(self) -> Self {
                 $vec::new(self.3, self.0, self.1, self.2)
             }
