@@ -273,85 +273,83 @@ macro_rules! blake2_impl {
 }
 
 macro_rules! blake2_compress_impl {
-    ($state:ident, $func:ident, $word:ident, $vec:ident,
+    ($func:ident, $word:ident, $vec:ident,
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr) => {
-        impl $state {
-            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, eq_op))]
-            fn $func(&mut self, f0: $word, f1: $word) {
-                #[inline]
-                fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
-                    v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
-                    v[3] = (v[3] ^ v[0]).rotate_right_const(rd);
-                    v[2] = v[2].wrapping_add(v[3]);
-                    v[1] = (v[1] ^ v[2]).rotate_right_const(rb);
-                }
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, eq_op))]
+        fn $func(&mut self, f0: $word, f1: $word) {
+            #[inline]
+            fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
+                v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
+                v[3] = (v[3] ^ v[0]).rotate_right_const(rd);
+                v[2] = v[2].wrapping_add(v[3]);
+                v[1] = (v[1] ^ v[2]).rotate_right_const(rb);
+            }
 
-                #[inline]
-                fn shuffle(v: &mut [$vec; 4]) {
-                    v[1] = v[1].shuffle_left_1();
-                    v[2] = v[2].shuffle_left_2();
-                    v[3] = v[3].shuffle_left_3();
-                }
+            #[inline]
+            fn shuffle(v: &mut [$vec; 4]) {
+                v[1] = v[1].shuffle_left_1();
+                v[2] = v[2].shuffle_left_2();
+                v[3] = v[3].shuffle_left_3();
+            }
 
-                #[inline]
-                fn unshuffle(v: &mut [$vec; 4]) {
-                    v[1] = v[1].shuffle_right_1();
-                    v[2] = v[2].shuffle_right_2();
-                    v[3] = v[3].shuffle_right_3();
-                }
+            #[inline]
+            fn unshuffle(v: &mut [$vec; 4]) {
+                v[1] = v[1].shuffle_right_1();
+                v[2] = v[2].shuffle_right_2();
+                v[3] = v[3].shuffle_right_3();
+            }
 
-                #[inline(always)]
-                fn round(v: &mut [$vec; 4], m: &[$word; 16], s: &[usize; 16]) {
-                    quarter_round(v, $R1, $R2, $vec::gather(m,
-                                  s[ 0], s[ 2], s[ 4], s[ 6]));
-                    quarter_round(v, $R3, $R4, $vec::gather(m,
-                                  s[ 1], s[ 3], s[ 5], s[ 7]));
+            #[inline(always)]
+            fn round(v: &mut [$vec; 4], m: &[$word; 16], s: &[usize; 16]) {
+                quarter_round(v, $R1, $R2, $vec::gather(m,
+                              s[ 0], s[ 2], s[ 4], s[ 6]));
+                quarter_round(v, $R3, $R4, $vec::gather(m,
+                              s[ 1], s[ 3], s[ 5], s[ 7]));
 
-                    shuffle(v);
-                    quarter_round(v, $R1, $R2, $vec::gather(m,
-                                  s[ 8], s[10], s[12], s[14]));
-                    quarter_round(v, $R3, $R4, $vec::gather(m,
-                                  s[ 9], s[11], s[13], s[15]));
-                    unshuffle(v);
-                }
+                shuffle(v);
+                quarter_round(v, $R1, $R2, $vec::gather(m,
+                              s[ 8], s[10], s[12], s[14]));
+                quarter_round(v, $R3, $R4, $vec::gather(m,
+                              s[ 9], s[11], s[13], s[15]));
+                unshuffle(v);
+            }
 
-                use $crate::blake2::SIGMA;
+            use $crate::blake2::SIGMA;
 
-                let m = &self.m;
-                let h = &mut self.h;
+            let m = &self.m;
+            let h = &mut self.h;
 
-                let t0 = self.t as $word;
-                let t1 = match $bytes {
-                    64 => 0,
-                    32 => (self.t >> 32) as $word,
-                    _  => unreachable!(),
-                };
+            let t0 = self.t as $word;
+            let t1 = match $bytes {
+                64 => 0,
+                32 => (self.t >> 32) as $word,
+                _  => unreachable!(),
+            };
 
-                let mut v = [
-                    h[0],
-                    h[1],
-                    iv0(),
-                    iv1() ^ $vec::new(t0, t1, f0, f1),
-                ];
+            let mut v = [
+                h[0],
+                h[1],
+                iv0(),
+                iv1() ^ $vec::new(t0, t1, f0, f1),
+            ];
 
+            round(&mut v, m, &SIGMA[0]);
+            round(&mut v, m, &SIGMA[1]);
+            round(&mut v, m, &SIGMA[2]);
+            round(&mut v, m, &SIGMA[3]);
+            round(&mut v, m, &SIGMA[4]);
+            round(&mut v, m, &SIGMA[5]);
+            round(&mut v, m, &SIGMA[6]);
+            round(&mut v, m, &SIGMA[7]);
+            round(&mut v, m, &SIGMA[8]);
+            round(&mut v, m, &SIGMA[9]);
+            if $bytes > 32 {
                 round(&mut v, m, &SIGMA[0]);
                 round(&mut v, m, &SIGMA[1]);
-                round(&mut v, m, &SIGMA[2]);
-                round(&mut v, m, &SIGMA[3]);
-                round(&mut v, m, &SIGMA[4]);
-                round(&mut v, m, &SIGMA[5]);
-                round(&mut v, m, &SIGMA[6]);
-                round(&mut v, m, &SIGMA[7]);
-                round(&mut v, m, &SIGMA[8]);
-                round(&mut v, m, &SIGMA[9]);
-                if $bytes > 32 {
-                    round(&mut v, m, &SIGMA[0]);
-                    round(&mut v, m, &SIGMA[1]);
-                }
-
-                h[0] ^= v[0] ^ v[2];
-                h[1] ^= v[1] ^ v[3];
             }
+
+            h[0] ^= v[0] ^ v[2];
+            h[1] ^= v[1] ^ v[3];
         }
     }
 }

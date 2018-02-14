@@ -14,7 +14,7 @@
 #![cfg_attr(feature = "cargo-clippy", warn(clippy_pedantic))]
 #![cfg_attr(feature = "cargo-clippy", allow(missing_docs_in_private_items))]
 
-#![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
+#![cfg_attr(feature = "simd", feature(platform_intrinsics))]
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
 

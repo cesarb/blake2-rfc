@@ -42,7 +42,10 @@ blake2_impl!(Blake2b, Blake2bResult, blake2b, u64, u64x4, 64, [
     0x510E527FADE682D1, 0x9B05688C2B3E6C1F,
     0x1F83D9ABFB41BD6B, 0x5BE0CD19137E2179,
 ]);
-blake2_compress_impl!(Blake2b, compress, u64, u64x4, 64, 32, 24, 16, 63);
+
+impl Blake2b {
+    blake2_compress_impl!(compress, u64, u64x4, 64, 32, 24, 16, 63);
+}
 
 blake2_selftest_impl!(Blake2b, blake2b, [
     0xC2, 0x3A, 0x78, 0x00, 0xD9, 0x81, 0x23, 0xBD,
