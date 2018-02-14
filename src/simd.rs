@@ -19,7 +19,7 @@ unsafe impl Safe for u64x4 {}
 
 #[cfg(not(feature = "simd"))]
 mod fallback {
-    use core::ops::{Add, BitXor, Shl, Shr};
+    use core::ops::{Add, BitXor, BitXorAssign};
 
     macro_rules! impl_vec {
         ($vec:ident, $elem:ident) => {
@@ -58,27 +58,13 @@ mod fallback {
                 }
             }
 
-            impl Shl<$vec> for $vec {
-                type Output = Self;
-
+            impl BitXorAssign for $vec {
                 #[inline]
-                fn shl(self, rhs: Self) -> Self::Output {
-                    $vec::new(self.0 << rhs.0,
-                              self.1 << rhs.1,
-                              self.2 << rhs.2,
-                              self.3 << rhs.3)
-                }
-            }
-
-            impl Shr<$vec> for $vec {
-                type Output = Self;
-
-                #[inline]
-                fn shr(self, rhs: Self) -> Self::Output {
-                    $vec::new(self.0 >> rhs.0,
-                              self.1 >> rhs.1,
-                              self.2 >> rhs.2,
-                              self.3 >> rhs.3)
+                fn bitxor_assign(&mut self, rhs: Self) {
+                    self.0 ^= rhs.0;
+                    self.1 ^= rhs.1;
+                    self.2 ^= rhs.2;
+                    self.3 ^= rhs.3;
                 }
             }
         }

@@ -306,8 +306,8 @@ macro_rules! blake2_impl {
                     $state::round(&mut v, m, &SIGMA[1]);
                 }
 
-                h[0] = h[0] ^ (v[0] ^ v[2]);
-                h[1] = h[1] ^ (v[1] ^ v[3]);
+                h[0] ^= v[0] ^ v[2];
+                h[1] ^= v[1] ^ v[3];
             }
         }
 

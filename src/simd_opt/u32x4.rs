@@ -27,7 +27,7 @@ pub fn rotate_right_const(vec: u32x4, n: u32) -> u32x4 {
 
 #[inline(always)]
 fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
-    let r = n as u32;
+    let r = n;
     let l = 32 - r;
 
     (vec >> r) ^ (vec << l)

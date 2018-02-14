@@ -1,5 +1,7 @@
 #![feature(test)]
 
+#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
+
 extern crate blake2_rfc;
 extern crate test;
 
