@@ -7,7 +7,7 @@
 
 #![cfg_attr(feature = "cargo-clippy", allow(inline_always))]
 
-use simdty::u32x4;
+use coresimd::simd::u32x4;
 
 #[cfg(feature = "simd_opt")]
 #[inline(always)]
@@ -30,7 +30,7 @@ fn rotate_right_any(vec: u32x4, n: u32) -> u32x4 {
     let r = n as u32;
     let l = 32 - r;
 
-    (vec >> u32x4::new(r, r, r, r)) ^ (vec << u32x4::new(l, l, l, l))
+    (vec >> r) ^ (vec << l)
 }
 
 #[cfg(feature = "simd_opt")]

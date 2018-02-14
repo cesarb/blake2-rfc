@@ -25,12 +25,13 @@ extern crate std;
 extern crate arrayvec;
 extern crate constant_time_eq;
 
+#[cfg(feature = "simd")]
+extern crate coresimd;
+
 mod as_bytes;
 mod bytes;
 
-mod simdty;
 mod simdint;
-mod simdop;
 mod simd_opt;
 mod simd;
 

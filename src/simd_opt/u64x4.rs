@@ -7,7 +7,7 @@
 
 #![cfg_attr(feature = "cargo-clippy", allow(inline_always))]
 
-use simdty::u64x4;
+use coresimd::simd::u64x4;
 
 #[cfg(feature = "simd_opt")]
 #[inline(always)]
@@ -31,7 +31,7 @@ fn rotate_right_any(vec: u64x4, n: u32) -> u64x4 {
     let r = n as u64;
     let l = 64 - r;
 
-    (vec >> u64x4::new(r, r, r, r)) ^ (vec << u64x4::new(l, l, l, l))
+    (vec >> r) ^ (vec << l)
 }
 
 #[cfg(feature = "simd_opt")]
@@ -100,7 +100,7 @@ fn rotate_right_16(vec: u64x4) -> u64x4 {
           target_feature = "neon",
           target_arch = "arm"))]
 mod simd_asm_neon_arm {
-    use simdty::{u64x2, u64x4};
+    use coresimd::simd::{u64x2, u64x4};
 
     #[inline(always)]
     fn vext_u64(vec: u64x2, b: u8) -> u64x2 {

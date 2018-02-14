@@ -6,13 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 
 #![allow(unused_macros)]
-#![cfg_attr(feature = "cargo-clippy", allow(inline_always))]
 
 #[cfg(feature = "simd")]
 macro_rules! transmute_shuffle {
     ($tmp:ident, $shuffle:ident, $vec:expr, $idx:expr) => {
         unsafe {
-            use simdty::$tmp;
+            use coresimd::simd::$tmp;
             use simdint::$shuffle;
             use core::mem::transmute;
 
@@ -23,16 +22,20 @@ macro_rules! transmute_shuffle {
     }
 }
 
-#[cfg(feature = "simd")] pub mod u32x4;
-#[cfg(feature = "simd")] pub mod u64x4;
+#[cfg(feature = "simd")]
+macro_rules! simd_opt {
+    ($vec:ident) => {
+        pub mod $vec;
+    }
+}
 
 #[cfg(not(feature = "simd"))]
 macro_rules! simd_opt {
     ($vec:ident) => {
         pub mod $vec {
-            use simdty::$vec;
+            use simd::$vec;
 
-            #[inline(always)]
+            #[inline]
             pub fn rotate_right_const(vec: $vec, n: u32) -> $vec {
                 $vec::new(vec.0.rotate_right(n),
                           vec.1.rotate_right(n),
@@ -43,5 +46,5 @@ macro_rules! simd_opt {
     }
 }
 
-#[cfg(not(feature = "simd"))] simd_opt!(u32x4);
-#[cfg(not(feature = "simd"))] simd_opt!(u64x4);
+simd_opt!(u32x4);
+simd_opt!(u64x4);
