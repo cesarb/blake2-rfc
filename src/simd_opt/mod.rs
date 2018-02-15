@@ -13,11 +13,10 @@ macro_rules! transmute_shuffle {
         unsafe {
             use coresimd::simd::$tmp;
             use simdint::$shuffle;
-            use core::mem::transmute;
 
-            let tmp_i: $tmp = transmute($vec);
+            let tmp_i: $tmp = From::from($vec);
             let tmp_o: $tmp = $shuffle(tmp_i, tmp_i, $idx);
-            transmute(tmp_o)
+            From::from(tmp_o)
         }
     }
 }
