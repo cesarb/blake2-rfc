@@ -42,7 +42,29 @@ blake2_impl!(Blake2s, Blake2sResult, blake2s, u32, u32x4, 32, [
 ]);
 
 impl Blake2s {
-    blake2_compress_impl!(compress, u32, u32x4, 32, 16, 12, 8, 7);
+    blake2_compress_impl!(compress_fallback, u32, u32x4, 32, 16, 12, 8, 7);
+}
+
+#[cfg(feature = "simd_runtime")]
+impl Blake2s {
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    blake2_compress_impl!(compress_ssse3 "ssse3", u32, u32x4, 32, 16, 12, 8, 7);
+
+    #[cfg(any(target_arch = "x86"))]
+    blake2_compress_impl!(compress_sse2 "sse2", u32, u32x4, 32, 16, 12, 8, 7);
+
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    blake2_compress_impl!(compress_neon "neon", u32, u32x4, 32, 16, 12, 8, 7);
+
+    fn compress(&mut self, f0: u32, f1: u32) {
+        blake2_compress_dispatch!(("x86", "x86_64"), compress_ssse3 "ssse3",
+                                  self, f0, f1);
+        blake2_compress_dispatch!(("x86"), compress_sse2 "sse2",
+                                  self, f0, f1);
+        blake2_compress_dispatch!(("arm", "aarch64"), compress_neon "neon",
+                                  self, f0, f1);
+        self.compress_fallback(f0, f1);
+    }
 }
 
 blake2_selftest_impl!(Blake2s, blake2s, [

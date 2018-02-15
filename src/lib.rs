@@ -17,6 +17,7 @@
 #![cfg_attr(feature = "simd", feature(platform_intrinsics))]
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
+#![cfg_attr(feature = "simd_runtime", feature(cfg_target_feature, target_feature))]
 
 #[cfg(feature = "std")]
 #[macro_use]
@@ -27,6 +28,9 @@ extern crate constant_time_eq;
 
 #[cfg(feature = "simd")]
 extern crate coresimd;
+#[cfg(feature = "simd_runtime")]
+#[macro_use]
+extern crate stdsimd;
 
 mod as_bytes;
 mod bytes;

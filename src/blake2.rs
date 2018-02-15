@@ -243,6 +243,11 @@ macro_rules! blake2_impl {
                 self.nn = 0;    // poison self
                 result
             }
+
+            #[cfg(not(feature = "simd_runtime"))]
+            fn compress(&mut self, f0: $word, f1: $word) {
+                self.compress_fallback(f0, f1);
+            }
         }
 
         impl Default for $state {
@@ -272,11 +277,45 @@ macro_rules! blake2_impl {
     }
 }
 
+#[cfg(feature = "simd_runtime")]
+macro_rules! blake2_compress_dispatch {
+    (($($arch:expr),+), $func:ident $feature:tt, $self:expr, $f0:expr, $f1:expr) => {
+        blake2_compress_dispatch!(cfg(any($(target_arch = $arch),+)), $feature,
+                                  $self, $func, $f0, $f1);
+    };
+    ($cfg:meta, $feature:tt, $self:expr, $func:ident, $f0:expr, $f1:expr) => {
+        #[$cfg]
+        {
+            if cfg_feature_enabled!($feature) {
+                unsafe { $self.$func($f0, $f1); }
+                return;
+            }
+        }
+    }
+}
+
 macro_rules! blake2_compress_impl {
     ($func:ident, $word:ident, $vec:ident,
      $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr) => {
         #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, eq_op))]
         fn $func(&mut self, f0: $word, f1: $word) {
+            blake2_compress_impl!(self, f0, f1,
+                                  $word, $vec, $bytes, $R1, $R2, $R3, $R4);
+        }
+    };
+    ($func:ident $feature:expr, $word:ident, $vec:ident,
+     $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr) => {
+        #[cfg(feature = "simd_runtime")]
+        #[target_feature(enable = $feature)]
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation, eq_op))]
+        unsafe fn $func(&mut self, f0: $word, f1: $word) {
+            blake2_compress_impl!(self, f0, f1,
+                                  $word, $vec, $bytes, $R1, $R2, $R3, $R4);
+        }
+    };
+    ($self:expr, $f0:expr, $f1:expr, $word:ident, $vec:ident,
+     $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr) => {
+        {
             #[inline]
             fn quarter_round(v: &mut [$vec; 4], rd: u32, rb: u32, m: $vec) {
                 v[0] = v[0].wrapping_add(v[1]).wrapping_add(m.from_le());
@@ -316,13 +355,13 @@ macro_rules! blake2_compress_impl {
 
             use $crate::blake2::SIGMA;
 
-            let m = &self.m;
-            let h = &mut self.h;
+            let m = &$self.m;
+            let h = &mut $self.h;
 
-            let t0 = self.t as $word;
+            let t0 = $self.t as $word;
             let t1 = match $bytes {
                 64 => 0,
-                32 => (self.t >> 32) as $word,
+                32 => ($self.t >> 32) as $word,
                 _  => unreachable!(),
             };
 
@@ -330,7 +369,7 @@ macro_rules! blake2_compress_impl {
                 h[0],
                 h[1],
                 iv0(),
-                iv1() ^ $vec::new(t0, t1, f0, f1),
+                iv1() ^ $vec::new(t0, t1, $f0, $f1),
             ];
 
             round(&mut v, m, &SIGMA[0]);

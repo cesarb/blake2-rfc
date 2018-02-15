@@ -18,12 +18,14 @@ default = ["std"]
 simd = ["coresimd"]
 simd_opt = ["simd"]
 simd_asm = ["simd_opt"]
+simd_runtime = ["simd", "stdsimd"]
 std = []
 
 [dependencies]
 arrayvec = { version = "0.4.0", default-features = false }
 constant_time_eq = "0.1.0"
-coresimd = { version = "0.0.4", optional = true }
+coresimd = { version = "=0.0.4", optional = true }
+stdsimd = { version = "=0.0.4", optional = true }
 
 [dev-dependencies]
 data-encoding = "2.0.0"
