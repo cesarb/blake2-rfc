@@ -97,7 +97,7 @@ macro_rules! blake2_impl {
 
         /// Convenience function for all-in-one computation.
         pub fn $func(nn: usize, k: &[u8], data: &[u8]) -> $result {
-            let mut state = $state::with_key(nn, k);
+            let mut state = $state::with_params(nn, k, &[], &[]);
             state.update(data);
             state.finalize()
         }
@@ -109,6 +109,12 @@ macro_rules! blake2_impl {
             /// Creates a new hashing context with a key.
             #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
             pub fn with_key(nn: usize, k: &[u8]) -> Self {
+                Self::with_params(nn, k, &[], &[])
+            }
+
+            /// Creates a new hashing context with the full set of sequential-mode parameters.
+            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+            pub fn with_params(nn: usize, k: &[u8], salt: &[u8], persona: &[u8]) -> Self {
                 let kk = k.len();
                 assert!(nn >= 1 && nn <= $bytes && kk <= $bytes);
 
