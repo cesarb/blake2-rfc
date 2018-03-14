@@ -58,6 +58,7 @@ mod tests {
 
     extern crate data_encoding;
     use self::data_encoding::HEXUPPER;
+    use self::data_encoding::HEXLOWER;
 
     use blake2::selftest_seq;
     use super::{Blake2b, blake2b};
@@ -74,6 +75,15 @@ mod tests {
         assert_eq!(&Blake2b::default().finalize(), &HEXUPPER.decode(
             b"786A02F742015903C6C6FD852552D272912F4740E15847618A86E217F71F5419D25E1031AFEE585313896444934EB04B903A685B1448B755D56F701AFE9BE2CE")
             .unwrap()[..]);
+    }
+
+    #[test]
+    fn test_persona() {
+        let key_bytes = &HEXLOWER.decode(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f").unwrap();
+        let persona = "personal";
+        let persona_bytes = persona.as_bytes();
+        let ctx = Blake2b::with_params(64, key_bytes, &[], persona_bytes);
+        assert_eq!(&ctx.finalize(), &HEXLOWER.decode(b"03de3b295dcfc3b25b05abb09bc95fe3e9ff3073638badc68101d1e42019d0771dd07525a3aae8318e92c5e5d967ba92e4810d0021d7bf3b49da0b4b4a8a4e1f").unwrap()[..]);
     }
 
     #[test]
