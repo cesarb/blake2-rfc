@@ -36,7 +36,9 @@
 
 #![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
 
-blake2_impl!(Blake2s, Blake2sResult, blake2s, u32, u32x4, 32, 16, 12, 8, 7, [
+blake2_impl!(
+    Blake2s, Blake2sResult, blake2s, u32,
+    u32x4, read_u32, 32, 16, 12, 8, 7, [
     0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
     0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
 ]);
@@ -54,6 +56,7 @@ mod tests {
 
     extern crate data_encoding;
     use self::data_encoding::HEXUPPER;
+    use self::data_encoding::HEXLOWER;
 
     use blake2::selftest_seq;
     use super::{Blake2s, blake2s};
@@ -70,6 +73,15 @@ mod tests {
         assert_eq!(&Blake2s::default().finalize(), &HEXUPPER.decode(
             b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
             .unwrap()[..]);
+    }
+
+    #[test]
+    fn test_persona() {
+        let key_bytes = &HEXLOWER.decode(b"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f").unwrap();
+        let persona = "personal";
+        let persona_bytes = persona.as_bytes();
+        let ctx = Blake2s::with_params(32, key_bytes, &[], persona_bytes);
+        assert_eq!(&ctx.finalize(), &HEXLOWER.decode(b"25a4ee63b594aed3f88a971e1877ef7099534f9097291f88fb86c79b5e70d022").unwrap()[..]);
     }
 
     #[test]

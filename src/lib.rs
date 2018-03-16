@@ -23,6 +23,7 @@
 extern crate std;
 
 extern crate arrayvec;
+extern crate byteorder;
 extern crate constant_time_eq;
 
 mod as_bytes;

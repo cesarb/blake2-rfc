@@ -22,7 +22,7 @@ pub const SIGMA: [[usize; 16]; 10] = [
 
 macro_rules! blake2_impl {
     ($state:ident, $result:ident, $func:ident, $word:ident, $vec:ident,
-     $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
+     $pack:ident, $bytes:expr, $R1:expr, $R2:expr, $R3:expr, $R4:expr, $IV:expr) => {
         use core::cmp;
 
         #[cfg(feature = "std")]
@@ -32,6 +32,8 @@ macro_rules! blake2_impl {
         use $crate::bytes::BytesExt;
         use $crate::constant_time_eq::constant_time_eq;
         use $crate::simd::{Vector4, $vec};
+
+        use byteorder::{ByteOrder, LittleEndian};
 
         /// Container for a hash result.
         ///
@@ -109,19 +111,54 @@ macro_rules! blake2_impl {
             /// Creates a new hashing context with a key.
             #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
             pub fn with_key(nn: usize, k: &[u8]) -> Self {
-                let kk = k.len();
+                Self::with_params(nn, k, &[], &[])
+            }
+
+            /// Creates a new hashing context with the full set of sequential-mode parameters.
+            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+            pub fn with_params(nn: usize, key: &[u8], salt: &[u8], persona: &[u8]) -> Self {
+                let kk = key.len();
                 assert!(nn >= 1 && nn <= $bytes && kk <= $bytes);
 
-                let p0 = 0x01010000 ^ ((kk as $word) << 8) ^ (nn as $word);
-                let mut state = $state {
-                    m: [0; 16],
-                    h: [iv0() ^ $vec::new(p0, 0, 0, 0), iv1()],
-                    t: 0,
-                    nn: nn,
-                };
+                // The number of bytes needed to express two words.
+                let length = $bytes/4;
+                assert!(salt.len() <= length);
+                assert!(persona.len() <= length);
+
+                // Build a parameter block
+                let mut p = [0 as $word; 8];
+                p[0] = 0x01010000 ^ ((kk as $word) << 8) ^ (nn as $word);
+
+                // salt is two words long
+                if salt.len() < length {
+                    let mut padded_salt = [0 as u8; $bytes/4];
+                    for i in 0..salt.len() {
+                        padded_salt[i] = salt[i];
+                    }
+                    p[4] = LittleEndian::$pack(&padded_salt[0 .. length/2]);
+                    p[5] = LittleEndian::$pack(&padded_salt[length/2 .. padded_salt.len()]);
+                } else {
+                    p[4] = LittleEndian::$pack(&salt[0 .. salt.len()/2]);
+                    p[5] = LittleEndian::$pack(&salt[salt.len()/2 .. salt.len()]);
+                }
+
+                // persona is also two words long
+                if persona.len() < length {
+                    let mut padded_persona = [0 as u8; $bytes/4];
+                    for i in 0..persona.len() {
+                        padded_persona[i] = persona[i];
+                    }
+                    p[6] = LittleEndian::$pack(&padded_persona[0 .. length/2]);
+                    p[7] = LittleEndian::$pack(&padded_persona[length/2 .. padded_persona.len()]);
+                } else {
+                    p[6] = LittleEndian::$pack(&persona[0 .. length/2]);
+                    p[7] = LittleEndian::$pack(&persona[length/2 .. persona.len()]);
+                }
+
+                let mut state = Self::with_parameter_block(&p);
 
                 if kk > 0 {
-                    state.m.as_mut_bytes().copy_bytes_from(k);
+                    state.m.as_mut_bytes().copy_bytes_from(key);
                     state.t = $bytes * 2;
                 }
                 state
