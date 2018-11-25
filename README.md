@@ -1,4 +1,5 @@
-# blake2-rfc
+# blake2-rfc [![](https://img.shields.io/crates/v/blake2-rfc.svg)](https://crates.io/crates/blake2-rfc) [![](https://docs.rs/blake2-rfc/badge.svg)](https://docs.rs/blake2-rfc)
+
 
 This is a pure Rust implementation of BLAKE2 based on [RFC 7693].
 
