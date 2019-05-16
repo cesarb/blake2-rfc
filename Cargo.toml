@@ -22,7 +22,7 @@ std = []
 
 [dependencies]
 arrayvec = { version = "0.4.0", default-features = false }
-constant_time_eq = "0.1.0"
+constant_time_eq = {git = "https://github.com/brenzi/constant_time_eq.git", branch="no-std", default-features = false }
 
 [dev-dependencies]
 data-encoding = "2.0.0"
