@@ -25,20 +25,25 @@ extern crate std;
 extern crate arrayvec;
 extern crate constant_time_eq;
 
-//mod as_bytes;
-//mod bytes;
+mod as_bytes;
+mod bytes;
 
-//mod simdty;
-//mod simdint;
-//mod simdop;
-//mod simd_opt;
-//mod simd;
+#[cfg(feature = "std")]
+mod simdty;
+#[cfg(feature = "std")]
+mod simdint;
+#[cfg(feature = "std")]
+mod simdop;
+#[cfg(feature = "std")]
+mod simd_opt;
+#[cfg(feature = "std")]
+mod simd;
 
 #[macro_use]
 mod blake2;
 
 pub mod blake2b;
-//pub mod blake2s;
+pub mod blake2s;
 
 /// Runs the self-test for both BLAKE2b and BLAKE2s.
 #[cold]
