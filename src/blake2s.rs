@@ -36,17 +36,34 @@
 
 #![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
 
-blake2_impl!(Blake2s, Blake2sResult, blake2s, u32, u32x4, 32, 16, 12, 8, 7, [
-    0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-    0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
-]);
+blake2_impl!(
+    Blake2s,
+    Blake2sResult,
+    blake2s,
+    u32,
+    u32x4,
+    32,
+    16,
+    12,
+    8,
+    7,
+    [
+        0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB,
+        0x5BE0CD19,
+    ]
+);
 
-blake2_selftest_impl!(Blake2s, blake2s, [
-    0x6A, 0x41, 0x1F, 0x08, 0xCE, 0x25, 0xAD, 0xCD,
-    0xFB, 0x02, 0xAB, 0xA6, 0x41, 0x45, 0x1C, 0xEC,
-    0x53, 0xC5, 0x98, 0xB2, 0x4F, 0x4F, 0xC7, 0x87,
-    0xFB, 0xDC, 0x88, 0x79, 0x7F, 0x4C, 0x1D, 0xFE,
-], [ 16, 20, 28, 32 ], [ 0,  3,  64, 65, 255, 1024 ]);
+blake2_selftest_impl!(
+    Blake2s,
+    blake2s,
+    [
+        0x6A, 0x41, 0x1F, 0x08, 0xCE, 0x25, 0xAD, 0xCD, 0xFB, 0x02, 0xAB, 0xA6, 0x41, 0x45, 0x1C,
+        0xEC, 0x53, 0xC5, 0x98, 0xB2, 0x4F, 0x4F, 0xC7, 0x87, 0xFB, 0xDC, 0x88, 0x79, 0x7F, 0x4C,
+        0x1D, 0xFE,
+    ],
+    [16, 20, 28, 32],
+    [0, 3, 64, 65, 255, 1024]
+);
 
 #[cfg(test)]
 mod tests {
@@ -55,21 +72,27 @@ mod tests {
     extern crate data_encoding;
     use self::data_encoding::HEXUPPER;
 
+    use super::{blake2s, Blake2s};
     use blake2::selftest_seq;
-    use super::{Blake2s, blake2s};
 
     #[test]
     fn test_empty() {
-        assert_eq!(&blake2s(32, &[], b""), &HEXUPPER.decode(
-            b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
-            .unwrap()[..]);
+        assert_eq!(
+            &blake2s(32, &[], b""),
+            &HEXUPPER
+                .decode(b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
+                .unwrap()[..]
+        );
     }
 
     #[test]
     fn test_default() {
-        assert_eq!(&Blake2s::default().finalize(), &HEXUPPER.decode(
-            b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
-            .unwrap()[..]);
+        assert_eq!(
+            &Blake2s::default().finalize(),
+            &HEXUPPER
+                .decode(b"69217A3079908094E11121D042354A7C1F55B6482CA1A51E1B250DFD1ED0EEF9")
+                .unwrap()[..]
+        );
     }
 
     #[test]
@@ -115,8 +138,11 @@ mod tests {
         for _ in 0..1048576 {
             state.update(&ZEROS);
         }
-        assert_eq!(&state.finalize(), &HEXUPPER.decode(
-            b"2A8E26830310DA3EF7F7032B7B1AF11B989ABA44A3713A22F539F69BD2CE4A87")
-            .unwrap()[..]);
+        assert_eq!(
+            &state.finalize(),
+            &HEXUPPER
+                .decode(b"2A8E26830310DA3EF7F7032B7B1AF11B989ABA44A3713A22F539F69BD2CE4A87")
+                .unwrap()[..]
+        );
     }
 }
