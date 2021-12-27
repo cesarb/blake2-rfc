@@ -28,10 +28,15 @@ extern crate constant_time_eq;
 mod as_bytes;
 mod bytes;
 
+#[cfg(feature = "std")]
 mod simdty;
+#[cfg(feature = "std")]
 mod simdint;
+#[cfg(feature = "std")]
 mod simdop;
+#[cfg(feature = "std")]
 mod simd_opt;
+#[cfg(feature = "std")]
 mod simd;
 
 #[macro_use]
