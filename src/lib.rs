@@ -8,12 +8,9 @@
 //! A pure Rust implementation of BLAKE2 based on RFC 7693.
 
 #![no_std]
-
 #![warn(missing_docs)]
-
 #![cfg_attr(feature = "cargo-clippy", warn(clippy_pedantic))]
 #![cfg_attr(feature = "cargo-clippy", allow(missing_docs_in_private_items))]
-
 #![cfg_attr(feature = "simd", feature(platform_intrinsics, repr_simd))]
 #![cfg_attr(feature = "simd_opt", feature(cfg_target_feature))]
 #![cfg_attr(feature = "simd_asm", feature(asm))]
@@ -28,11 +25,11 @@ extern crate constant_time_eq;
 mod as_bytes;
 mod bytes;
 
-mod simdty;
+mod simd;
+mod simd_opt;
 mod simdint;
 mod simdop;
-mod simd_opt;
-mod simd;
+mod simdty;
 
 #[macro_use]
 mod blake2;
